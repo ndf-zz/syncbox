@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name "syncbox")(type "Legacy")(uri "${KIPRJMOD}/library/syncbox.lib")(options "")(descr "Local parts"))
+  (lib (name "syncbox-rescue")(type "Legacy")(uri "${KIPRJMOD}/syncbox-rescue.lib")(options "")(descr ""))
+)

@@ -1,0 +1,21 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP 142AX
+D 2 conductor mini jack
+$ENDCMP
+#
+$CMP BOX
+D Syncbox Enclosure
+K BOX
+$ENDCMP
+#
+$CMP MIDI
+D Circular Connector 5 pin DIN with shield for MIDI/DIN
+$ENDCMP
+#
+$CMP RV1S9160A
+D HIGH CMR, 15Mbps CMOS OUTPUT, LOW FORWARD-CURRENT, 3.3V/5V OPERATION, 5-PIN SOP PHOTOCOUPLER
+F RV1S9160A.pdf
+$ENDCMP
+#
+#End Doc Library
