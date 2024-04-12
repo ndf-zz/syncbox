@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Creator: fig2dev Version 3.2.8b -->
+<!-- CreationDate: 2024-04-12 14:54:28 -->
+<!-- Magnification: 2.1 -->
+<svg	xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	width="442pt" height="307pt"
+	viewBox="1288 912 3501 2430">
+<g fill="none">
+<!-- Line -->
+<rect x="2070" y="1305" width="1800" height="540" fill="#ffb0b0"/>
+<!-- Line -->
+<rect x="2070" y="1215" width="1800" height="90" fill="#b0b0ff"/>
+<!-- Line -->
+<!-- greenbox -->
+<rect x="2070" y="2295" width="1800" height="540" fill="#b0ffb0"/>
+<!-- Line -->
+<polyline points=" 2070,3285 2835,3150 3015,3330 3870,3150"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Line -->
+<polyline points=" 2070,1215 2070,3285"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Line -->
+<polyline points=" 2070,1845 3960,1845"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Line -->
+<polyline points=" 2070,2835 3960,2835"
+	stroke="#000000" stroke-width="8px" stroke-dasharray="40 40"/>
+<!-- Line -->
+<polyline points=" 2070,1305 3960,1305"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Line -->
+<polyline points=" 2070,1215 3960,1215"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Line -->
+<polyline points=" 2070,2295 3960,2295"
+	stroke="#000000" stroke-width="8px" stroke-dasharray="40 40"/>
+<!-- Line -->
+<polyline points=" 3870,1215 3870,3150"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Text -->
+<text xml:space="preserve" x="4005" y="2295" fill="#000000" font-family="Courier" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x0800c000</text>
+<!-- Text -->
+<text xml:space="preserve" x="4005" y="1215" fill="#000000" font-family="Courier" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x08000000</text>
+<!-- Text -->
+<text xml:space="preserve" x="4005" y="1395" fill="#000000" font-family="Courier" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x08000800</text>
+<!-- Text -->
+<text xml:space="preserve" x="1980" y="1305" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="72" text-anchor="end">Loader (2KiB)</text>
+<!-- Text -->
+<text xml:space="preserve" x="4005" y="1845" fill="#000000" font-family="Courier" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x08004800</text>
+<!-- Text -->
+<text xml:space="preserve" x="2970" y="2610" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="72" text-anchor="middle">Data Journal (16KiB)</text>
+<!-- Text -->
+<text xml:space="preserve" x="4005" y="2835" fill="#000000" font-family="Courier" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x08010000</text>
+<!-- Text -->
+<text xml:space="preserve" x="2970" y="1035" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="middle">Flash Memory Allocation</text>
+<!-- Text -->
+<text xml:space="preserve" x="2970" y="1620" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="72" text-anchor="middle">Application (16KiB)</text>
+<!-- Text -->
+<text xml:space="preserve" x="2970" y="2115" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="72" text-anchor="middle">Unused (read-only)</text>
+</g>
+</svg>
