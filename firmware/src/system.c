@@ -56,7 +56,7 @@ void Reset_Handler(void)
 		/* Re-configure PLL for use with HSEx2 */
 		RCC->CR &=~ RCC_CR_PLLON;
 		wait_for_bit_clr(RCC->CR, RCC_CR_PLLRDY);
-		RCC->CFGR |= RCC_CFGR_PLLSRC_HSE_PREDIV;
+		RCC->CFGR |= RCC_CFGR_PLLSRC_HSE_PREDIV|RCC_CFGR_USBPRE_DIV1;
 		RCC->CR |= RCC_CR_PLLON;
 		wait_for_bit_set(RCC->CR, RCC_CR_PLLRDY);
 		RCC->CFGR |= RCC_CFGR_SW_PLL;

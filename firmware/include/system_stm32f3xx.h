@@ -81,6 +81,14 @@ extern uint32_t SystemID;
 /* Software version */
 extern uint32_t Version;
 
+/* Unique device ID register */
+typedef struct {
+	__I uint32_t XY;	/* X,Y coordinates on wafer */
+	__I uint32_t LOTWAF;	/* Lot high and wafer number */
+	__I uint32_t LOT;	/* Lot low */
+} UID_TypeDef;
+#define UID                 ((UID_TypeDef *) UID_BASE)
+
 /* System heartbeat clock - updated by SystemTick interrupt */
 extern volatile uint32_t Uptime;
 

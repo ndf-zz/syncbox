@@ -1,31 +1,46 @@
-/*
- * F303xe Devices, modified to include UID block
- *
- * @file    stm32f303xe.h
- * @author  MCD Application Team
- * @brief   CMSIS STM32F303xE Devices Peripheral Access Layer Header File.
- *
- *          This file contains:
- *           - Data structures and the address mapping for all peripherals
- *           - Peripheral's registers declarations and bits definition
- *           - Macros to access peripheral's registers hardware
- *
- ******************************************************************************
- * @attention
- *
- * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
- * All rights reserved.</center></h2>
- *
- * This software component is licensed by ST under BSD 3-Clause license,
- * the "License"; You may not use this file except in compliance with the
- * License. You may obtain a copy of the License at:
- *                        opensource.org/licenses/BSD-3-Clause
- *
- ******************************************************************************
- */
+/**
+  ******************************************************************************
+  * @file    stm32f303xe.h
+  * @author  MCD Application Team
+  * @brief   CMSIS STM32F303xE Devices Peripheral Access Layer Header File.
+  *
+  *          This file contains:
+  *           - Data structures and the address mapping for all peripherals
+  *           - Peripheral's registers declarations and bits definition
+  *           - Macros to access peripheral's registers hardware
+  *
+  ******************************************************************************
+  * @attention
+  *
+  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.</center></h2>
+  *
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
+  *
+  ******************************************************************************
+  */
 
-#ifndef STM32F303xE_H
-#define STM32F303xE_H
+/** @addtogroup CMSIS_Device
+  * @{
+  */
+
+/** @addtogroup stm32f303xe
+  * @{
+  */
+
+#ifndef __STM32F303xE_H
+#define __STM32F303xE_H
+
+#ifdef __cplusplus
+ extern "C" {
+#endif /* __cplusplus */
+
+/** @addtogroup Configuration_section_for_CMSIS
+  * @{
+  */
 
 /**
  * @brief Configuration of the Cortex-M4 Processor and Core Peripherals
@@ -203,14 +218,6 @@ typedef struct
   __IO uint32_t CDR;            /*!< ADC common regular data register for dual
                                      AND triple modes,                            Address offset: ADC1/3 base address + 0x30C */
 } ADC_Common_TypeDef;
-
-/* Unique device ID register */
-typedef struct
-{
-  __I uint32_t XY;	/* X,Y coordinates on wafer */
-  __I uint32_t LOTWAF;	/* Lot high and wafer number */
-  __I uint32_t LOT;	/* Lot low */
-} UID_TypeDef;
 
 /**
   * @brief Controller Area Network TxMailBox
@@ -977,7 +984,6 @@ typedef struct
 #define GPIOF               ((GPIO_TypeDef *) GPIOF_BASE)
 #define GPIOG               ((GPIO_TypeDef *) GPIOG_BASE)
 #define GPIOH               ((GPIO_TypeDef *) GPIOH_BASE)
-#define UID                 ((UID_TypeDef *) UID_BASE)
 #define ADC1                ((ADC_TypeDef *) ADC1_BASE)
 #define ADC2                ((ADC_TypeDef *) ADC2_BASE)
 #define ADC3                ((ADC_TypeDef *) ADC3_BASE)
@@ -15308,4 +15314,18 @@ typedef struct
 #define CAN_RX0_IRQHandler     USB_LP_CAN_RX0_IRQHandler
 
 
-#endif /* STM32F303xE_H */
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __STM32F303xE_H */
+
+/**
+  * @}
+  */
+
+  /**
+  * @}
+  */
+
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
