@@ -2,7 +2,9 @@
 
 MIDI/USB to DIN sync converter
 
-[Incomplete/In progress]
+![Prototype](prototype.jpg "Prototype")
+
+[in progress]
 
 ## Contents
 
