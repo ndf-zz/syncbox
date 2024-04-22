@@ -7,7 +7,7 @@
 #include "stm32f3xx.h"
 
 /* Vector Table for Cortex-M4 */
-__attribute__((used,section(".vector")))
+static __attribute__((used,section(".vector")))
 void(*vtable[])(void) = {
 	MSP_INIT,
 	Reset_Handler,

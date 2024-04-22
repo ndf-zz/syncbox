@@ -17,6 +17,7 @@ OBJECTS = src/main.o
 # Extra build objects
 OBJECTS += src/flash.o
 OBJECTS += src/midi_event.o
+OBJECTS += src/display.o
 
 # system_init(), reset and fault handers [required]
 OBJECTS += src/system.o
@@ -54,13 +55,13 @@ DEBUG = -g
 DIALECT = -std=c99 -pedantic -ffreestanding
 
 # General code optimisation level
-OPTIMISE = -Og
+OPTIMISE = -Os
 # Mark functions and data so linker can omit dead sections
 OPTIMISE += -ffunction-sections -fdata-sections
 # Place uninitialized global variables in the data section of the object file
 OPTIMISE += -fno-common
-# Perform link-time optimisation (see note re ld bug) [prod]
-#OPTIMISE += -flto
+# Perform link-time optimisation
+OPTIMISE += -flto
 
 # Treat all warnings as errors
 WARN = -Werror
@@ -84,10 +85,9 @@ ARMOPTS += -mthumb
 CPPFLAGS = -DSTM32F303xE
 # Add include path for headers
 CPPFLAGS += -Iinclude
-# Use 24MHz HSE
-CPPFLAGS += -DUSE_HSE
-CPPFLAGS += -DSYSTEMCORECLOCK=48000000UL
-# Lock GPIO ports in system_init() (requires power on reset to clear)
+# Lock code memory pages in system_init() - Requires power on reset to clear
+#CPPFLAGS += -DLOCK_CODE_MEMORY
+# Lock GPIO ports in system_init() - Requires power on reset to clear
 #CPPFLAGS += -DLOCK_GPIO
 # Enable IWDG in user interface handler
 #CPPFLAGS += -DUSE_IWDG
@@ -109,7 +109,7 @@ LDFLAGS = -T$(LINKSCRIPT)
 # Don't include stdlib when linking
 LDFLAGS += -nostdlib
 # Omit dead sections [prod] (note: this may cause problems with LTO)
-#LDFLAGS += -Wl,--gc-sections
+LDFLAGS += -Wl,--gc-sections
 
 # Combined Compiler flags
 CFLAGS = $(DIALECT) $(DEBUG) $(OPTIMISE) $(WARN) $(ARMOPTS)
@@ -118,7 +118,7 @@ LCFLAGS = CFLAGS
 # Debugger
 DB = gdb-multiarch
 DBARCH = armv7e-m
-DBSCRIPT = -ex 'target remote :3333'
+DBSCRIPT = -ex 'target extended-remote :3333'
 DBSCRIPT += -ex 'monitor reset halt'
 DBSCRIPT += -ex 'set $$msp = 0x20010000'
 DBSCRIPT += -ex 'load'

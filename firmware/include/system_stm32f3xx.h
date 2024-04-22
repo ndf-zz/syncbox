@@ -6,9 +6,7 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
-#ifndef SYSTEMCORECLOCK
-#define SYSTEMCORECLOCK 8000000UL
-#endif
+#define SYSTEMCORECLOCK 24000000UL
 #define SYSTEMTICKLEN	(SYSTEMCORECLOCK/1000UL)
 
 #ifndef SYSTEMVERSION
@@ -28,6 +26,7 @@
 #define ___is_defined(val)		____is_defined(__ARG_PLACEHOLDER_##val)
 #define ____is_defined(arg1_or_junk)	__take_second_arg(arg1_or_junk 1, 0, 0)
 #define IS_ENABLED(option) __is_defined(option)
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 /* Bit band access macros */
 #define BB_PERIPH(reg) ((uint32_t *)(PERIPH_BB_BASE + ((uint32_t)&(reg) - PERIPH_BASE) * 32U))
