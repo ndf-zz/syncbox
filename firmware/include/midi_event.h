@@ -29,6 +29,8 @@ union midi_event {
 
 /* MIDI Event Code Indexes */
 #define MIDI_CIN_MASK		0xfU
+#define MIDI_CIN_RESERVED_0	0x0U	/* Miscellaneous function codes */
+#define MIDI_CIN_RESERVED_1	0x1U	/* Cable events */
 #define MIDI_CIN_COMMON_2	0x2U	/* 2 byte system common */
 #define MIDI_CIN_COMMON_3	0x3U	/* 3 byte system common */
 #define MIDI_CIN_SYSEX		0x4U	/* Sysex start or contiue */

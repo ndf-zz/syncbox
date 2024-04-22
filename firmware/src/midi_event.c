@@ -9,6 +9,8 @@
 #include "stm32f3xx.h"
 #include "midi.h"
 #include "midi_event.h"
+// temporary
+#include "display.h"
 
 #define MIDI_BAUD		31250U
 #define SENSE_TIMEOUT		400U
@@ -50,7 +52,9 @@ uint32_t midi_poll(void)
 			rcv.sense = 0UL;
 			ret = MIDI_STATUS_UNDEF5;
 			rcv.error |= MIDI_ERROR_SENSE;
-        		GPIOA->BRR = GPIO_ODR_1;
+			display_midi_off();
+		} else {
+			display_midi_on();
 		}
 	}
 	return ret;
@@ -59,8 +63,9 @@ uint32_t midi_poll(void)
 /* Receive status byte */
 static inline void rcv_status(uint32_t sb)
 {
-        GPIOA->BSRR = GPIO_ODR_1;
 	if ((sb & MIDI_RT_MASK) == MIDI_RT_MASK) {
+		// temp: active sense all RT traffic
+		rcv.sense = 1UL;
 		switch (sb) {
 		case MIDI_RT_CLOCK:
 		case MIDI_RT_START:
@@ -75,15 +80,11 @@ static inline void rcv_status(uint32_t sb)
 			}
 			break;
 		case MIDI_RT_SENSE:
-			rcv.sense = 1UL;
+			// Ignore explicit sense
 			break;
 		default:
 			/* ignore undefined RT messages */
 			break;
-		}
-		/* save cpu clock and spool this as a sep message */
-		if (sb == MIDI_RT_SENSE) {
-			rcv.sense = 1UL;
 		}
 	} else {
 		switch (sb & MIDI_STATUS_MASK) {
@@ -114,7 +115,6 @@ static inline void rcv_status(uint32_t sb)
 static inline void rcv_data(uint32_t db)
 {
 	uint32_t tmp;
-        GPIOA->BRR = GPIO_ODR_1;
 	rcv.data = (rcv.data << 8U) | db;
 	rcv.count++;
 	if (rcv.count == rcv.bytes) {
