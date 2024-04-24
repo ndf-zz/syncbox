@@ -17,6 +17,8 @@ OBJECTS = src/main.o
 # Extra build objects
 OBJECTS += src/flash.o
 OBJECTS += src/midi_event.o
+OBJECTS += src/midi_uart.o
+OBJECTS += src/midi_usb.o
 OBJECTS += src/display.o
 
 # system_init(), reset and fault handers [required]

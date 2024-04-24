@@ -8,7 +8,6 @@
 #include "stm32f3xx.h"
 #include "midi.h"
 #include "midi_event.h"
-#include "midi_uart.h"
 #include "display.h"
 
 /* Output port constants */
@@ -19,9 +18,13 @@
 #define DINCK GPIO_ODR_0
 #define DINFL GPIO_ODR_2
 
+/* Device config */
+#define SYSEX_ID	0x7d	// temp
+#define CONFIG_LENGTH	8U
+
 static uint32_t beat;
 
-void note_on(uint32_t note)
+void note_on(uint8_t note)
 {
 	display_din_blink();
 	switch (note) {
@@ -39,7 +42,7 @@ void note_on(uint32_t note)
 	}
 }
 
-void note_off(uint32_t note)
+void note_off(uint8_t note)
 {
 	switch (note) {
 	case 0x3c:
@@ -54,6 +57,11 @@ void note_off(uint32_t note)
 	default:
 		break;
 	}
+}
+
+void all_off(void)
+{
+	GPIOC->BRR = GATE1 | GATE2 | GATE3;
 }
 
 void start(void)
@@ -86,9 +94,9 @@ void cont(void)
 	start();
 }
 
-void rt_msg(uint32_t msg)
+void rt_msg(uint8_t msg)
 {
-	switch(msg) {
+	switch (msg) {
 	case MIDI_RT_CLOCK:
 		tick();
 		break;
@@ -101,51 +109,73 @@ void rt_msg(uint32_t msg)
 	case MIDI_RT_STOP:
 		stop();
 		break;
+	case MIDI_RT_RESET:
+		all_off();
+		stop();
+		break;
 	default:
 		break;
 	}
 }
 
-void ch_msg(uint32_t msg)
+void config(struct midi_sysex_config *cfg)
 {
-	uint32_t chan = msg>>24U;
-	uint32_t note = (msg & 0xff00U) >> 8U;
-	switch (chan & MIDI_STATUS_MASK) {
-	case MIDI_STATUS_NOTEON:
-		note_on(note);
-		break;
-	case MIDI_STATUS_NOTEOFF:
-		note_off(note);
-		break;
-	default:
-		break;
+	GPIOC->ODR = cfg->idcfg;
+	BREAKPOINT(21);
+}
+
+void sysex(struct midi_event *event)
+{
+	struct midi_sysex_config *cfg;
+	uint32_t len = event->evt.raw.midi1;
+	if (len == CONFIG_LENGTH) {
+		cfg = midi_sysex_buf(event);
+		if (cfg != NULL) {
+			if ((cfg->idcfg & SYSEX_IDMASK) == SYSEX_ID) {
+				config(cfg);
+			}
+		}
 	}
 }
 
 void main(void)
 {
-        /* Force USB re-enumeration if connected */
-        GPIOA->BSRR = GPIO_BSRR_BR_12;
-        uint32_t nm = GPIOA->MODER & ~GPIO_MODER_MODER12_Msk;
-        GPIOA->MODER = nm | (0x1 << GPIO_MODER_MODER12_Pos);
+	/* Force USB re-enumeration if connected */
+	GPIOA->BSRR = GPIO_BSRR_BR_12;
+	uint32_t nm = GPIOA->MODER & ~GPIO_MODER_MODER12_Msk;
+	GPIOA->MODER = nm | (0x1 << GPIO_MODER_MODER12_Pos);
 	uint32_t nt = Uptime;
-	while(Uptime - nt < 6);
+	while (Uptime - nt < 6) ;
 	GPIOA->MODER = nm | (0x3 << GPIO_MODER_MODER12_Pos);
 
-	midi_uart_init();
+	midi_event_init();
 	uint32_t lt = 0U;
-	uint32_t msg;
-	uint32_t tmp;
+	struct midi_event *msg;
 	do {
 		wait_for_interrupt();
 		uint32_t t = Uptime;
-		msg = midi_poll();
-		tmp = msg>>24U;
-		if (tmp) {
-			if ((tmp & MIDI_RT_CLOCK) == MIDI_RT_CLOCK) {
-				rt_msg(tmp);
-			} else {
-				ch_msg(msg);
+		msg = midi_event_poll();
+		if (msg != NULL) {
+			uint8_t cin = msg->evt.raw.header & MIDI_CIN_MASK;
+			switch (cin) {
+			case MIDI_CIN_EOX_3:	// special case
+				sysex(msg);
+				break;
+			case MIDI_CIN_NOTE_ON:
+				note_on(msg->evt.raw.midi1);
+				break;
+			case MIDI_CIN_NOTE_OFF:
+				note_off(msg->evt.raw.midi1);
+				break;
+			case MIDI_CIN_CONTROL:
+				if (msg->evt.raw.midi1 == MIDI_MODE_ALLOFF) {
+					all_off();
+				}
+				break;
+			case MIDI_CIN_BYTE:
+				rt_msg(msg->evt.raw.midi0);
+			default:	// Ignore all others`
+				break;
 			}
 		}
 		if (lt != t) {
