@@ -1,15 +1,19 @@
 // SPDX-License-Identifier: MIT
 
 /*
- * MIDI UART Receiver Interface
+ * MIDI UART Device Interface
  */
-#ifndef _MIDI_UART_H
-#define _MIDI_UART_H
+#ifndef MIDI_UART_H
+#define MIDI_UART_H
+#include <stdint.h>
 
-/* Check for expiry of active sense */
-void midi_uart_sense(void);
+// Global sysex packet buffer
+extern uint8_t midi_uart_sysbuf[];
 
-/* Prepare hardware and start data reception */
+// Initialise hardware and enable receive interrupt
 void midi_uart_init(void);
 
-#endif /* _MIDI_UART_H */
+// Return non-zero if device active sense has expired
+uint32_t midi_uart_sense(void);
+
+#endif // MIDI_UART_H
