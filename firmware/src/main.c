@@ -152,32 +152,43 @@ void main(void)
 	uint32_t lt = 0U;
 	struct midi_event *msg;
 	do {
-		wait_for_interrupt();
+		//wait_for_interrupt();
 		uint32_t t = Uptime;
-		msg = midi_event_poll();
-		if (msg != NULL) {
-			uint8_t cin = msg->evt.raw.header & MIDI_CIN_MASK;
-			switch (cin) {
-			case MIDI_CIN_EOX_3:	// special case
-				sysex(msg);
-				break;
-			case MIDI_CIN_NOTE_ON:
-				note_on(msg->evt.raw.midi1);
-				break;
-			case MIDI_CIN_NOTE_OFF:
-				note_off(msg->evt.raw.midi1);
-				break;
-			case MIDI_CIN_CONTROL:
-				if (msg->evt.raw.midi1 == MIDI_MODE_ALLOFF) {
-					all_off();
+		do {
+			msg = midi_event_poll();
+			if (msg != NULL) {
+				TRACEVAL(5U, msg->evt.val);
+				uint8_t cin =
+				    msg->evt.raw.header & MIDI_CIN_MASK;
+				switch (cin) {
+				case MIDI_CIN_EOX_3:	// special case
+					sysex(msg);
+					break;
+				case MIDI_CIN_NOTE_ON:
+					note_on(msg->evt.raw.midi1);
+					break;
+				case MIDI_CIN_NOTE_OFF:
+					note_off(msg->evt.raw.midi1);
+					break;
+				case MIDI_CIN_CONTROL:
+					if (msg->evt.raw.midi1 ==
+					    MIDI_MODE_ALLOFF) {
+						all_off();
+					}
+					break;
+				case MIDI_CIN_BYTE:
+					rt_msg(msg->evt.raw.midi0);
+					break;
+				case MIDI_CIN_RESERVED_0:
+					// likely uninitialised event
+					BREAKPOINT(23U);
+					break;
+				default:	// Ignore all others
+					break;
 				}
-				break;
-			case MIDI_CIN_BYTE:
-				rt_msg(msg->evt.raw.midi0);
-			default:	// Ignore all others`
-				break;
+				midi_event_done();
 			}
-		}
+		} while (msg != NULL);
 		if (lt != t) {
 			display_update(t);
 		}

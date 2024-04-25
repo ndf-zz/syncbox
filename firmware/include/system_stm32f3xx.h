@@ -36,9 +36,12 @@
 #define wait_for_bit_set(reg, bit) do { } while (((reg)&bit) != bit)
 #define wait_for_bit_clr(reg, bit) do { } while (((reg)&bit) == bit)
 
-/* convenience debug enabled macro */
+/* convenience debug enabled macros */
 #define DEBUG_ENABLED (CoreDebug->DHCSR & CoreDebug_DHCSR_C_DEBUGEN_Msk)
 #define BREAKPOINT(cond) do { if (DEBUG_ENABLED) __BKPT( (cond) ); } while(0)
+#define TRACEVAL(port, value) do { \
+			ITM->PORT[(port)].u32 = (value); \
+	} while(0)
 
 /* optimisation barrier - for ordering co-dependent register access  */
 #define barrier() __asm__ __volatile__("": : :"memory")
@@ -47,6 +50,17 @@
 #define STACK_TOP	0x20010000UL
 #define STACK_BOTTOM	0x2000e000UL
 #define MSP_INIT ( (void(*)(void))STACK_TOP )
+
+/* NVIC Constants */
+#define PRIGROUP_4_4		0x5
+#define PRIGROUP0		(0U<<2)
+#define PRIGROUP1		(1U<<2)
+#define PRIGROUP2		(2U<<2)
+#define PRIGROUP3		(3U<<2)
+#define PRISUB0			0U
+#define PRISUB1			1U
+#define PRISUB2			2U
+#define PRISUB3			3U
 
 /* MPU Constants */
 #define FLASH_ALIAS		0x0UL

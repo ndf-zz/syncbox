@@ -68,6 +68,9 @@ void midi_event_append(uint32_t event, uint32_t clock);
 // Check for queued midi event and probe device sense
 struct midi_event *midi_event_poll(void);
 
+// Flag the last received event as done
+void midi_event_done(void);
+
 // Return pointer to sysex config buffer for the provided event handle
 struct midi_sysex_config *midi_sysex_buf(struct midi_event *event);
 

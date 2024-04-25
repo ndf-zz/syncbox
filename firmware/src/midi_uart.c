@@ -8,11 +8,14 @@
  * flagged with UART cable number (1).
  *
  * Sysex packets up to a length of 46 bytes are buffered
- * to midi_uart_sysbuf. Length is sent in the corresponding
- * event packet.
+ * to midi_uart_sysbuf. Valid sysex messages are indicated
+ * to the event interface with a three byte sysex event packet
+ * containing the length of data received.
  *
- * Ref:	MIDI 1.0 Detailed Specification 4.2
- *	Universal Serial Bus Device Class Definition for MIDI Devices 1.0
+ * References:
+ *
+ *  - MIDI 1.0 Detailed Specification 4.2
+ *  - Universal Serial Bus Device Class Definition for MIDI Devices 1.0
  */
 #include "stm32f3xx.h"
 #include "midi.h"
@@ -26,11 +29,10 @@ uint8_t midi_uart_sysbuf[MIDI_MAX_SYSEX];
 
 static struct uart_receiver {
 	volatile uint32_t time;	// system time of last received byte
-	uint32_t sense;		// system time of last RT message
 	uint32_t status;	// current running status
 	uint32_t cin;		// current Code Index (CIN)
 	uint32_t data1;		// previous data byte
-	uint32_t bytes;		// count of data bytes expected 
+	uint32_t bytes;		// number of data bytes expected  (0,1,2)
 	uint32_t count;		// count of data bytes collected
 } rcv;
 
@@ -47,7 +49,7 @@ static void rcv_reset(void)
 static void rcv_sys(uint32_t db)
 {
 	if (rcv.count >= MIDI_MAX_SYSEX) {
-		// Too many bytes, ignore whole packet
+		// Too many bytes for this device, ignore whole packet
 		rcv_reset();
 		return;
 	}
@@ -144,30 +146,29 @@ static void status_3_byte(uint32_t cin, uint32_t status)
 	rcv.count = 0U;
 }
 
-// Register RT message reception, update sense timeout
-static void rt_sense(void)
-{
-	rcv.sense = Uptime;
-	display_midi_on();
-}
-
 // Receive a status byte
 static void rcv_status(uint32_t sb)
 {
-	rt_sense();
+	display_midi_on();
 	switch (sb) {
 	case MIDI_RT_CLOCK:
 	case MIDI_RT_START:
 	case MIDI_RT_CONTINUE:
 	case MIDI_RT_STOP:
-	case MIDI_RT_RESET:
 		single_byte_msg(MIDI_CIN_BYTE, sb);
 		break;
-	case MIDI_RT_SENSE:
-		ignore_status();
+	case MIDI_RT_RESET:
+		single_byte_msg(MIDI_CIN_BYTE, sb);
+		rcv_reset();
 		break;
+	case MIDI_RT_SENSE:
 	case MIDI_RT_UNDEF9:
 	case MIDI_RT_UNDEFd:
+		/* MIDI 1.0 Detailed Specification 4.2, A-1:
+		 * "undefined Real Time status bytes (F9H, FDH)
+		 *  [...] should always be ignored, and the running
+		 *  status buffer should remain unaffected"
+		 */
 		ignore_status();
 		break;
 	case MIDI_STATUS_SYSTEM:
@@ -183,6 +184,11 @@ static void rcv_status(uint32_t sb)
 		break;
 	case MIDI_STATUS_UNDEF4:
 	case MIDI_STATUS_UNDEF5:
+		/* MIDI 1.0 Detailed Specification 4.2 A-1:
+		 * "undefined System Common status bytes (F4H and F5H)
+		 * [...] should be ignored and the running status buffer
+		 * should be cleared"
+		 */
 		ignore_status();
 		rcv_reset();
 		break;
@@ -209,7 +215,6 @@ static void rcv_status(uint32_t sb)
 			status_2_byte(sb >> 4, sb);
 			break;
 		default:
-			//rcv_reset();
 			break;
 		}
 	}
@@ -246,12 +251,12 @@ void midi_uart_init(void)
 	UART5->CR1 |= USART_CR1_RXNEIE;
 	UART5->BRR = (SYSTEMCORECLOCK / MIDI_BAUD);
 	UART5->CR1 |= USART_CR1_UE | USART_CR1_RE;
-	NVIC_SetPriority(UART5_IRQn, 3);
+	NVIC_SetPriority(UART5_IRQn, PRIGROUP2|PRISUB1);
 	NVIC_EnableIRQ(UART5_IRQn);
 }
 
 // Return non-zero if device active sense has expired
 uint32_t midi_uart_sense(void)
 {
-	return (Uptime - rcv.sense + 4U) > MIDI_SENSE_TIMEOUT;
+	return (Uptime - rcv.time + 4U) > MIDI_SENSE_TIMEOUT;
 }
