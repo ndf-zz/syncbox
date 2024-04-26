@@ -94,7 +94,7 @@ static void setup_mpu(void)
 	barrier();
 
 	// Enable MPU & MemManage fault handler
-	ARM_MPU_Enable(MPU_CTRL_PRIVDEFENA_Msk);
+	ARM_MPU_Enable(MPU_CTRL_PRIVDEFENA_Msk|MPU_CTRL_HFNMIENA_Msk);
 	barrier();
 
 }
@@ -145,7 +145,7 @@ void Reset_Handler(void)
 
 	// I/O Port configuration
 	GPIOA->MODER = 0xebfffff5;	// DA, MA, SWD, SENSE
-	GPIOB->MODER = 0xffffffff;	// Unused
+	GPIOB->MODER = 0xffffffbf;	// SWO
 	GPIOC->MODER = 0x76ffff55;	// CK, RS, FL, G1, G2, G3
 	GPIOD->AFR[0] = 0x00000500;	// PD2 -> Uart5 RX
 	GPIOD->MODER = 0xffffffef;	// MIDI
@@ -160,12 +160,12 @@ void Reset_Handler(void)
 	barrier();
 
 	// Update interrupt priority grouping field
-	__NVIC_SetPriorityGrouping(0x5);	// 0bxx.yy 4/4 split
+	NVIC_SetPriorityGrouping(PRIGROUP_4_4);
 
 	// Configure the SysTick timer at 1ms / AHB/1
 	Uptime = 0UL;
 	SysTick->LOAD = SYSTEMTICKLEN - 1UL;
-	NVIC_SetPriority(SysTick_IRQn, 0x7);	// grp=1 sub=3
+	NVIC_SetPriority(SysTick_IRQn, PRIGROUP1|PRISUB1);
 	SysTick->VAL = 0UL;
 	SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk |
 	    SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;
@@ -234,8 +234,18 @@ void Default_Handler(void)
 /* Handlers for System-critical faults */
 void NMI_Handler(void)
 {
-	BREAKPOINT(0);
-	while (1) ;
+	if (SYSCFG->CFGR2 & SYSCFG_CFGR2_SRAM_PE) {
+		// Check for SRAM Parity error
+		BREAKPOINT(44);
+		SYSCFG->CFGR2 |= SYSCFG_CFGR2_SRAM_PE;
+	} else if (RCC->CIR & RCC_CIR_CSSF) {
+		// Check for CSS error
+		BREAKPOINT(55);
+		RCC->CIR |= RCC_CIR_CSSC;
+	} else {
+		BREAKPOINT(0);
+		while (1) ;
+	}
 }
 
 void HardFault_Handler(void)
