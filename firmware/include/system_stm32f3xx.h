@@ -42,6 +42,10 @@
 #define TRACEVAL(port, value) do { \
 			ITM->PORT[(port)].u32 = (value); \
 	} while(0)
+#define PENDSV() do { SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk; } while(0)
+
+/* service call */
+#define __SVC() __ASM volatile ("SVC #0")
 
 /* optimisation barrier - for ordering co-dependent register access  */
 #define barrier() __asm__ __volatile__("": : :"memory")
@@ -93,6 +97,9 @@ extern uint32_t SystemID;
 
 /* Software version */
 extern uint32_t Version;
+
+/* Main function prototype - requires -ffreestanding */
+void main(void);
 
 /* Unique device ID register */
 typedef struct {

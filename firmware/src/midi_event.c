@@ -65,6 +65,7 @@ void midi_event_append(uint32_t event, uint32_t clock)
 	} else {
 		BREAKPOINT(MIDI_OVERRUN);
 	}
+	PENDSV();
 }
 
 // Reset receive status

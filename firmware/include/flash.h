@@ -40,7 +40,7 @@ int32_t flash_zero(uint32_t addr);
 int32_t flash_erase(uint32_t addr);
 
 /* Write a block of len words from src to addr, updating CRC */
-int32_t flash_block(uint32_t addr, uint32_t *src, uint32_t len);
+int32_t flash_block(uint32_t addr, uint32_t * src, uint32_t len);
 
 /* Check and optionally reset option bytes */
 void flash_set_options(void);

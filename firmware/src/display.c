@@ -132,5 +132,6 @@ void display_update(uint32_t clock)
 			tmp |= DISPLAY_DIN << 16;
 		}
 	}
-	if (tmp) DISPLAY_GPIO->BSRR = tmp;
+	if (tmp)
+		DISPLAY_GPIO->BSRR = tmp;
 }

@@ -87,6 +87,8 @@ ARMOPTS += -mthumb
 CPPFLAGS = -DSTM32F303xE
 # Add include path for headers
 CPPFLAGS += -Iinclude
+# Enable sleep to low power mode
+CPPFLAGS += -DENABLE_SLEEP
 # Lock code memory pages in system_init() - Requires power on reset to clear
 #CPPFLAGS += -DLOCK_CODE_MEMORY
 # Lock GPIO ports in system_init() - Requires power on reset to clear

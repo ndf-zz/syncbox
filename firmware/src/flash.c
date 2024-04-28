@@ -68,7 +68,7 @@ int32_t flash_program(uint32_t addr, uint16_t val)
 	FLASH->CR = FLASH_CR_PG;
 	barrier();
 	*((volatile uint16_t *)addr) = val;
-	__DSB();	/* or read back value */
+	__DSB();		/* or read back value */
 	flash_wait();
 	return *((volatile uint16_t *)addr) != val;
 }

@@ -7,8 +7,8 @@
 #include "stm32f3xx.h"
 
 /* Vector Table for Cortex-M4 */
-static __attribute__((used,section(".vector")))
-void(*vtable[])(void) = {
+static __attribute__((used, section(".vector")))
+void (*vtable[])(void) = {
 	MSP_INIT,
 	Reset_Handler,
 	NMI_Handler,
@@ -20,10 +20,10 @@ void(*vtable[])(void) = {
 	0UL,
 	0UL,
 	0UL,
-	Default_Handler,	/* SVC_Handler */
+	PendSV_Handler,		/* SVC_Handler */
 	Default_Handler,	/* DebugMon_Handler */
 	0UL,
-	Default_Handler,	/* PendSV_Handler */
+	PendSV_Handler,		/* PendSV_Handler */
 	SysTick_Handler,
 	Default_Handler,	/* WWDG_IRQHandler */
 	Default_Handler,	/* PVD_IRQHandler */
@@ -111,4 +111,3 @@ void(*vtable[])(void) = {
 	0UL,
 	Default_Handler,	/* SPI4_IRQHandler */
 };
-

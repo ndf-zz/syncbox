@@ -20,8 +20,6 @@ extern uint32_t _edata;
 extern uint32_t _sbss;
 extern uint32_t _ebss;
 
-void main(void);
-
 /* Initialise HSE and PLL */
 static void setup_clock(void)
 {
@@ -94,9 +92,36 @@ static void setup_mpu(void)
 	barrier();
 
 	// Enable MPU & MemManage fault handler
-	ARM_MPU_Enable(MPU_CTRL_PRIVDEFENA_Msk|MPU_CTRL_HFNMIENA_Msk);
-	barrier();
+	ARM_MPU_Enable(MPU_CTRL_PRIVDEFENA_Msk | MPU_CTRL_HFNMIENA_Msk);
 
+}
+
+/* Prepare .data and .bss */
+static void mem_init(void)
+{
+	// Copy .data segment into RAM
+	uint32_t *dsrc = &_sidata;
+	uint32_t *ddst = &_sdata;
+	uint32_t *dend = &_edata;
+	while (ddst < dend)
+		*ddst++ = *dsrc++;
+
+	// Zero .bss
+	uint32_t *bdst = &_sbss;
+	uint32_t *bend = &_ebss;
+	while (bdst < bend)
+		*bdst++ = 0;
+	__DSB();
+}
+
+/* Enable peripheral clocks */
+static void enable_clocks(void)
+{
+	RCC->AHBENR |= RCC_AHBENR_CRCEN | RCC_AHBENR_GPIOAEN |
+	    RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN |
+	    RCC_AHBENR_GPIODEN | RCC_AHBENR_GPIOFEN;
+	RCC->APB1ENR |= RCC_APB1ENR_UART5EN;
+	barrier();
 }
 
 /* Compute a hardware-unique identifier */
@@ -114,34 +139,10 @@ void Reset_Handler(void)
 	// Relocate vector table at start of CCMRAM
 	SCB->VTOR = CCMDATARAM_BASE;
 
-	// Copy .data segment into RAM
-	uint32_t *dsrc = &_sidata;
-	uint32_t *ddst = &_sdata;
-	uint32_t *dend = &_edata;
-	while (ddst < dend)
-		*ddst++ = *dsrc++;
-
-	// Zero .bss
-	uint32_t *bdst = &_sbss;
-	uint32_t *bend = &_ebss;
-	while (bdst < bend)
-		*bdst++ = 0;
-	__DSB();
-
-	// Lock code memory
-	if (IS_ENABLED(LOCK_CODE_MEMORY)) {
-		SYSCFG->RCR = 0x0000ffff;
-	}
-
+	mem_init();
 	setup_clock();
 	setup_mpu();
-
-	// Enable peripheral clocks
-	RCC->AHBENR |= RCC_AHBENR_CRCEN | RCC_AHBENR_GPIOAEN |
-	    RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN |
-	    RCC_AHBENR_GPIODEN | RCC_AHBENR_GPIOFEN;
-	RCC->APB1ENR |= RCC_APB1ENR_UART5EN;
-	barrier();
+	enable_clocks();
 
 	// I/O Port configuration
 	GPIOA->MODER = 0xebfffff5;	// DA, MA, SWD, SENSE
@@ -150,22 +151,23 @@ void Reset_Handler(void)
 	GPIOD->AFR[0] = 0x00000500;	// PD2 -> Uart5 RX
 	GPIOD->MODER = 0xffffffef;	// MIDI
 	GPIOF->MODER = 0xffffffff;	// Unused
-	barrier();
 
 	generate_sysid();
-	barrier();
 
 	// ensure option bytes are correctly set
 	flash_set_options();
-	barrier();
 
 	// Update interrupt priority grouping field
 	NVIC_SetPriorityGrouping(PRIGROUP_4_4);
 
+	// Set PendSV and SVCall to lowest priority
+	NVIC_SetPriority(PendSV_IRQn, PRIGROUP3 | PRISUB2);
+	NVIC_SetPriority(SVCall_IRQn, PRIGROUP3 | PRISUB2);
+
 	// Configure the SysTick timer at 1ms, AHB/1
 	Uptime = 0;
 	SysTick->LOAD = SYSTEMTICKLEN - 1U;
-	NVIC_SetPriority(SysTick_IRQn, PRIGROUP1|PRISUB1);
+	NVIC_SetPriority(SysTick_IRQn, PRIGROUP1 | PRISUB1);
 	SysTick->VAL = 0;
 	SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk |
 	    SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;
@@ -193,7 +195,14 @@ void Reset_Handler(void)
 	RCC->AHBENR &= ~(RCC_AHBENR_CRCEN | RCC_AHBENR_GPIOBEN
 			 | RCC_AHBENR_GPIODEN | RCC_AHBENR_GPIOFEN);
 
+	// Legacy main loop
 	main();
+
+	if (IS_ENABLED(ENABLE_SLEEP)) {
+		// Enable sleep on exit from interrupt
+		SCB->SCR |= SCB_SCR_SLEEPONEXIT_Msk;
+	}
+	__SVC();
 	while (1) ;
 }
 
@@ -222,6 +231,7 @@ inline void wait_for_interrupt(void)
 void SysTick_Handler(void)
 {
 	Uptime++;
+	PENDSV();
 }
 
 /* Default handler */
