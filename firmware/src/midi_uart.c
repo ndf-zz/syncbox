@@ -14,7 +14,7 @@
 #define MIDI_BAUD              31250U
 
 // Receive byte from serial port
-void UART5_IRQHandler(void)
+void midi_uart_receive(void)
 {
 	uint32_t tmp = UART5->RDR;
 	if (UART5->ISR & (USART_ISR_FE | USART_ISR_NE)) {

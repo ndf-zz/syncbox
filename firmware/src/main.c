@@ -139,8 +139,8 @@ void sysex(struct midi_event *event)
 	midi_sysex_done(event);
 }
 
-// main 'loop' processing
-void PendSV_Handler(void)
+// handle any pending updates
+void system_update(void)
 {
 	struct midi_event *msg;
 	static uint32_t lt = 0;
@@ -182,16 +182,14 @@ void PendSV_Handler(void)
 		display_update(t);
 	}
 	lt = t;
+	if (IS_ENABLED(USE_IWDG))
+		IWDG->KR = 0xaaaa;
 }
 
 void main(void)
 {
-	/* Force USB re-enumeration if connected */
-	GPIOA->BSRR = GPIO_BSRR_BR_12;
-	uint32_t nm = GPIOA->MODER & ~GPIO_MODER_MODER12_Msk;
-	GPIOA->MODER = nm | (0x1 << GPIO_MODER_MODER12_Pos);
-	uint32_t nt = Uptime;
-	while (Uptime - nt < 6) ;
-	GPIOA->MODER = nm | (0x3 << GPIO_MODER_MODER12_Pos);
 	midi_event_init();
+        if (IS_ENABLED(USE_IWDG))
+		IWDG->KR = 0xcccc;
+
 }

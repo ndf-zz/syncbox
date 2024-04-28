@@ -20,4 +20,4 @@ void display_din_off(void);
 void display_midi_blink(void);
 void display_din_blink(void);
 
-#endif /* DISPLAY_H */
+#endif // DISPLAY_H

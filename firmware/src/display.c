@@ -9,19 +9,19 @@
 #define DISPLAY_GPIO	GPIOA
 #define DISPLAY_DIN	GPIO_ODR_0
 #define DISPLAY_MIDI	GPIO_ODR_1
-#define DISPLAY_ONTIME	25UL
-#define DISPLAY_OFFTIME	75UL
-#define DISPLAY_PERIOD	100UL
+#define DISPLAY_ONTIME	25U
+#define DISPLAY_OFFTIME	75U
+#define DISPLAY_PERIOD	100U
 
 // Status flags
-#define DISPLAY_DIN_SET (1UL<<0)
-#define DISPLAY_MIDI_SET (1UL<<1)
-#define DISPLAY_DIN_ON (1UL<<2)
-#define DISPLAY_MIDI_ON (1UL<<3)
-#define DISPLAY_DIN_BLINK (1UL<<4)
-#define DISPLAY_MIDI_BLINK (1UL<<5)
-#define DISPLAY_DIN_START (1UL<<6)
-#define DISPLAY_MIDI_START (1UL<<7)
+#define DISPLAY_DIN_SET (1U<<0)
+#define DISPLAY_MIDI_SET (1U<<1)
+#define DISPLAY_DIN_ON (1U<<2)
+#define DISPLAY_MIDI_ON (1U<<3)
+#define DISPLAY_DIN_BLINK (1U<<4)
+#define DISPLAY_MIDI_BLINK (1U<<5)
+#define DISPLAY_DIN_START (1U<<6)
+#define DISPLAY_MIDI_START (1U<<7)
 
 static struct display_stat {
 	uint32_t flags;

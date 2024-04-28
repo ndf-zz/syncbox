@@ -5,7 +5,7 @@
  */
 
 /* Program entry point */
-ENTRY(Reset_Handler)
+ENTRY(system_init)
 
 /* Memory Layout */
 MEMORY
