@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 /*
- * MIDI Event Interface
+ * MIDI Event and Receiver Interface
  */
 #ifndef MIDI_EVENT_H
 #define MIDI_EVENT_H
@@ -59,8 +59,8 @@ struct midi_sysex_config {
 #define MIDI_CABLE_MASK		0xf0	// Cable number mask
 
 // MIDI Cable numbers 
-#define MIDI_CABLE_UART		0x10	// MIDI UART
-#define MIDI_CABLE_USB		0x00	// USB-MIDI
+#define MIDI_CABLE_UART		0x1	// MIDI UART
+#define MIDI_CABLE_USB		0x0	// USB-MIDI
 
 // Enqueue a filtered raw midi event packet
 void midi_event_append(uint32_t event, uint32_t clock);
@@ -71,8 +71,17 @@ struct midi_event *midi_event_poll(void);
 // Flag the last received event as done
 void midi_event_done(void);
 
+// Reset receive status on the nominated cable
+void midi_reset(const uint32_t cable);
+
+// Receive a single byte on the nominated cable
+void midi_receive(const uint32_t cable, uint32_t val);
+
 // Return pointer to sysex config buffer for the provided event handle
 struct midi_sysex_config *midi_sysex_buf(struct midi_event *event);
+
+// Mark the sysex event as done
+void midi_sysex_done(struct midi_event *event);
 
 // Prepare midi device interfaces
 void midi_event_init(void);

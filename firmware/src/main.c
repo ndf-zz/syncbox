@@ -136,6 +136,7 @@ void sysex(struct midi_event *event)
 			}
 		}
 	}
+	midi_sysex_done(event);
 }
 
 void main(void)

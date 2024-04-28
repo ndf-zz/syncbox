@@ -48,13 +48,13 @@ static void setup_clock(void)
 static void setup_mpu(void)
 {
 	// Disable regions 0 & 1
-	MPU->RBAR = MPU_RBAR_VALID_Msk | 0U;
+	MPU->RBAR = MPU_RBAR_VALID_Msk | 0;
 	barrier();
-	MPU->RASR = 0UL;
+	MPU->RASR = 0;
 	barrier();
 	MPU->RBAR = MPU_RBAR_VALID_Msk | 1U;
 	barrier();
-	MPU->RASR = 0UL;
+	MPU->RASR = 0;
 	barrier();
 
 	// Region 2: CCMRAM r/o
@@ -125,7 +125,7 @@ void Reset_Handler(void)
 	uint32_t *bdst = &_sbss;
 	uint32_t *bend = &_ebss;
 	while (bdst < bend)
-		*bdst++ = 0UL;
+		*bdst++ = 0;
 	__DSB();
 
 	// Lock code memory
@@ -162,11 +162,11 @@ void Reset_Handler(void)
 	// Update interrupt priority grouping field
 	NVIC_SetPriorityGrouping(PRIGROUP_4_4);
 
-	// Configure the SysTick timer at 1ms / AHB/1
-	Uptime = 0UL;
-	SysTick->LOAD = SYSTEMTICKLEN - 1UL;
+	// Configure the SysTick timer at 1ms, AHB/1
+	Uptime = 0;
+	SysTick->LOAD = SYSTEMTICKLEN - 1U;
 	NVIC_SetPriority(SysTick_IRQn, PRIGROUP1|PRISUB1);
-	SysTick->VAL = 0UL;
+	SysTick->VAL = 0;
 	SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk |
 	    SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;
 	__DSB();
