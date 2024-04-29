@@ -1,62 +1,113 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Creator: fig2dev Version 3.2.8b -->
-<!-- CreationDate: 2024-04-12 14:54:28 -->
-<!-- Magnification: 2.1 -->
+<!-- CreationDate: 2024-04-29 13:57:21 -->
+<!-- Magnification: 1.26 -->
 <svg	xmlns="http://www.w3.org/2000/svg"
 	xmlns:xlink="http://www.w3.org/1999/xlink"
-	width="442pt" height="307pt"
-	viewBox="1288 912 3501 2430">
+	width="303pt" height="359pt"
+	viewBox="783 810 4006 4740">
 <g fill="none">
-<!-- Line -->
-<rect x="2070" y="1305" width="1800" height="540" fill="#ffb0b0"/>
 <!-- Line -->
 <rect x="2070" y="1215" width="1800" height="90" fill="#b0b0ff"/>
 <!-- Line -->
-<!-- greenbox -->
-<rect x="2070" y="2295" width="1800" height="540" fill="#b0ffb0"/>
+<rect x="2070" y="1305" width="1800" height="720" fill="#ffb0b0"/>
 <!-- Line -->
-<polyline points=" 2070,3285 2835,3150 3015,3330 3870,3150"
+<polygon points=" 2070,4680 2835,4545 3015,4725 3870,4545 3870,5535 2070,5535" fill="#b0ffb0"/>
+<!-- Line -->
+<polygon points=" 2070,4365 2070,2655 3870,2655 3870,4230 3015,4410 2835,4230" fill="#b0ffb0"/>
+<!-- Line -->
+<polyline points=" 2070,3375 3960,3375"
 	stroke="#000000" stroke-width="8px"/>
-<!-- Line -->
-<polyline points=" 2070,1215 2070,3285"
-	stroke="#000000" stroke-width="8px"/>
-<!-- Line -->
-<polyline points=" 2070,1845 3960,1845"
-	stroke="#000000" stroke-width="8px"/>
-<!-- Line -->
-<polyline points=" 2070,2835 3960,2835"
-	stroke="#000000" stroke-width="8px" stroke-dasharray="40 40"/>
 <!-- Line -->
 <polyline points=" 2070,1305 3960,1305"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Line -->
+<polyline points=" 2070,2655 3960,2655"
 	stroke="#000000" stroke-width="8px"/>
 <!-- Line -->
 <polyline points=" 2070,1215 3960,1215"
 	stroke="#000000" stroke-width="8px"/>
 <!-- Line -->
-<polyline points=" 2070,2295 3960,2295"
+<polyline points=" 2070,2025 3960,2025"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Line -->
+<polyline points=" 2070,4095 3960,4095"
 	stroke="#000000" stroke-width="8px" stroke-dasharray="40 40"/>
 <!-- Line -->
-<polyline points=" 3870,1215 3870,3150"
+<polyline points=" 2070,4815 3960,4815"
+	stroke="#000000" stroke-width="8px" stroke-dasharray="40 40"/>
+<!-- Line -->
+<polyline points=" 3870,1215 3870,4230"
 	stroke="#000000" stroke-width="8px"/>
+<!-- Line -->
+<polyline points=" 3870,4545 3870,5535"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Line -->
+<polyline points=" 2070,4680 2835,4545 3015,4725 3870,4548"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Line -->
+<polyline points=" 2070,5535 2070,4680"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Line -->
+<polyline points=" 2070,1215 2070,4365"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Line -->
+<polyline points=" 2070,4365 2835,4230 3015,4410 3870,4230"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Line -->
+<polyline points=" 2070,5535 3960,5535"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Line -->
+<polyline points=" 2025,2700 1935,2700 1935,5490 2025,5490"
+	stroke="#000000" stroke-width="8px" stroke-dasharray="40 40"/>
+<!-- Line -->
+<polyline points=" 2025,1260 1935,1260 1935,2610 2025,2610"
+	stroke="#000000" stroke-width="8px" stroke-dasharray="40 40"/>
 <!-- Text -->
-<text xml:space="preserve" x="4005" y="2295" fill="#000000" font-family="Courier" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x0800c000</text>
+<text xml:space="preserve" x="4005" y="1215" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x08000000</text>
 <!-- Text -->
-<text xml:space="preserve" x="4005" y="1215" fill="#000000" font-family="Courier" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x08000000</text>
+<text xml:space="preserve" x="4005" y="5535" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x08080000</text>
 <!-- Text -->
-<text xml:space="preserve" x="4005" y="1395" fill="#000000" font-family="Courier" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x08000800</text>
+<text xml:space="preserve" x="4005" y="1440" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x08000800</text>
 <!-- Text -->
-<text xml:space="preserve" x="1980" y="1305" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="72" text-anchor="end">Loader (2KiB)</text>
+<text xml:space="preserve" x="4005" y="2655" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x08008000</text>
 <!-- Text -->
-<text xml:space="preserve" x="4005" y="1845" fill="#000000" font-family="Courier" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x08004800</text>
+<text xml:space="preserve" x="4005" y="2025" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x08004800</text>
 <!-- Text -->
-<text xml:space="preserve" x="2970" y="2610" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="72" text-anchor="middle">Data Journal (16KiB)</text>
+<text xml:space="preserve" x="2970" y="1710" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="middle">Application (16KiB)</text>
 <!-- Text -->
-<text xml:space="preserve" x="4005" y="2835" fill="#000000" font-family="Courier" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x08010000</text>
+<text xml:space="preserve" x="4005" y="3375" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x08008800</text>
 <!-- Text -->
-<text xml:space="preserve" x="2970" y="1035" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="middle">Flash Memory Allocation</text>
+<text xml:space="preserve" x="4005" y="4095" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x08009000</text>
 <!-- Text -->
-<text xml:space="preserve" x="2970" y="1620" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="72" text-anchor="middle">Application (16KiB)</text>
+<text xml:space="preserve" x="2970" y="5220" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="middle">Journal Page 29</text>
 <!-- Text -->
-<text xml:space="preserve" x="2970" y="2115" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="72" text-anchor="middle">Unused (read-only)</text>
+<text xml:space="preserve" x="4005" y="4815" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x0807f800</text>
+<!-- Text -->
+<text xml:space="preserve" x="2970" y="3060" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="middle">Journal Page 0</text>
+<!-- Text -->
+<text xml:space="preserve" x="2970" y="3780" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="middle">Journal Page 1</text>
+<!-- Text -->
+<text xml:space="preserve" x="3420" y="1170" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="end">Loader (2KiB)</text>
+<!-- Text -->
+<text xml:space="preserve" x="1845" y="3690" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="end">Config Journal</text>
+<!-- Text -->
+<text xml:space="preserve" x="1845" y="2115" fill="#000000" font-family="Helvetica" font-style="italic" font-weight="normal" font-size="96" text-anchor="end">read-only</text>
+<!-- Text -->
+<text xml:space="preserve" x="1845" y="2250" fill="#000000" font-family="Helvetica" font-style="italic" font-weight="normal" font-size="96" text-anchor="end">no exec</text>
+<!-- Text -->
+<text xml:space="preserve" x="1845" y="1800" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="end">System ROM</text>
+<!-- Text -->
+<text xml:space="preserve" x="1845" y="1935" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="end">32KiB</text>
+<!-- Text -->
+<text xml:space="preserve" x="1845" y="3825" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="end">30x16KiB Pages</text>
+<!-- Text -->
+<text xml:space="preserve" x="1845" y="4005" fill="#000000" font-family="Helvetica" font-style="italic" font-weight="normal" font-size="96" text-anchor="end">read/write</text>
+<!-- Text -->
+<text xml:space="preserve" x="1845" y="4140" fill="#000000" font-family="Helvetica" font-style="italic" font-weight="normal" font-size="96" text-anchor="end">no exec</text>
+<!-- Text -->
+<text xml:space="preserve" x="2970" y="2385" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="middle">Preset Data (14KiB)</text>
+<!-- Text -->
+<text xml:space="preserve" x="2970" y="945" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="120" text-anchor="middle">Syncbox Flash Memory (256x2KiB)</text>
 </g>
 </svg>

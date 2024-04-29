@@ -61,7 +61,6 @@
 
 // MPU Constants
 #define FLASH_ALIAS		0x0
-#define FLASH_USERBASE		0x08005000
 #define RASR_ENABLE		0x1
 #define RASR_AP_NONE		(0x0 << 24)
 #define RASR_AP_RO		(0x06 << 24)
