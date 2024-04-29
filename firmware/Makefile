@@ -20,6 +20,7 @@ OBJECTS += src/midi_event.o
 OBJECTS += src/midi_uart.o
 OBJECTS += src/midi_usb.o
 OBJECTS += src/display.o
+OBJECTS += src/settings.o
 
 # system_init(), reset and fault handers [required]
 OBJECTS += src/system.o
@@ -43,6 +44,9 @@ TARGET = $(PROJECT).elf
 LOADELF = loader.elf
 LOADSRC = src/loader.s
 LOADSCRIPT = include/loader.ld
+
+# ROM Options
+OPTIONS = options.elf
 
 # Listing files
 TARGETLIST = $(TARGET:.elf=.lst)
@@ -95,7 +99,6 @@ CPPFLAGS += -DENABLE_SLEEP
 #CPPFLAGS += -DLOCK_GPIO
 # Enable IWDG in user interface handler
 #CPPFLAGS += -DUSE_IWDG
-
 # Store firmware version in binary
 CPPFLAGS += -DSYSTEMVERSION=$(VERSION)
 FIRMWARE = $(PROJECT)_$(VERSION).bin
@@ -151,8 +154,9 @@ NM = arm-none-eabi-nm
 NMFLAGS = -n -r
 DISFLAGS = -d -S
 OBJDUMP = arm-none-eabi-objdump
-GPG = gpg2
-GPGFLAGS = -b -u $(GPGKEY)
+GPG = gpg
+GPGFLAGS = -b --local-user $(GPGKEY)
+DD = dd
 
 # Default target is $(TARGET)
 .PHONY: elf
@@ -163,14 +167,22 @@ $(OBJECTS): Makefile
 $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) -o $(TARGET) $(OBJECTS)
 
+.PHONY: options
+options: $(OPTIONS)
+
+$(OPTIONS): Makefile src/options.o include/settings.h
+	$(CC) $(CFLAGS) -nostdlib -o $(OPTIONS) src/options.o
+
 $(LOADELF): $(LOADSRC) $(LOADSCRIPT)
 	$(CC) $(CFLAGS) -T$(LOADSCRIPT) -nostdlib -o $(LOADELF) $(LOADSRC)
 
-$(FIRMWARE): $(LOADELF) $(TARGET)
-	$(OBJCOPY) --pad-to=0x08000800 --gap-fill=$(PROGPAD) -O binary $(LOADELF) .loader.bin
-	$(OBJCOPY) --pad-to=0x10004000 --gap-fill=$(PROGPAD) -O binary $(TARGET) .target.bin
-	cat .loader.bin .target.bin > $(FIRMWARE)
-	-rm .loader.bin .target.bin
+$(FIRMWARE): $(LOADELF) $(TARGET) $(OPTIONS)
+	$(OBJCOPY) --pad-to=0x08008000 --gap-fill=$(PROGPAD) -O binary $(LOADELF) $(FIRMWARE)
+	$(OBJCOPY) -O binary $(TARGET) .target.bin
+	$(DD) if=.target.bin seek=1 bs=2K count=8 conv=notrunc of=$(FIRMWARE)
+	$(OBJCOPY) -O binary $(OPTIONS) .presets.bin
+	$(DD) if=.presets.bin seek=9 bs=2K count=7 conv=notrunc of=$(FIRMWARE)
+	-rm .target.bin .presets.bin
 
 $(BINSIGNATURE): $(FIRMWARE)
 	$(GPG) $(GPGFLAGS) --output $(BINSIGNATURE) $(FIRMWARE)
@@ -220,7 +232,7 @@ sign: $(BINSIGNATURE)
 
 .PHONY: clean
 clean:
-	-rm -f $(TARGET) $(LOADELF) $(LOADOBJ) $(FIRMWARE) $(BINSIGNATURE) $(OBJECTS) $(LISTFILES) $(TARGETLIST)
+	-rm -f $(TARGET) $(LOADELF) $(LOADOBJ) $(OPTIONS) src/options.o $(FIRMWARE) $(BINSIGNATURE) $(OBJECTS) $(LISTFILES) $(TARGETLIST)
 
 .PHONY: requires
 requires:
@@ -231,6 +243,7 @@ help:
 	@echo
 	@echo Targets:
 	@echo " elf [default]	build all objects, link and write $(TARGET)"
+	@echo " options 	create ROM options binary $(OPTIONS)"
 	@echo " bin		create flash loader binary $(FIRMWARE)"
 	@echo " sign		sign $(FIRMWARE) using gpg"
 	@echo " size		list $(TARGET) section sizes"

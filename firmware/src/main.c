@@ -9,6 +9,7 @@
 #include "midi.h"
 #include "midi_event.h"
 #include "display.h"
+#include "settings.h"
 
 /* Output port constants */
 #define GATE1 GPIO_ODR_3
@@ -118,12 +119,6 @@ void rt_msg(uint8_t msg)
 	}
 }
 
-void config(struct midi_sysex_config *cfg)
-{
-	GPIOC->ODR = cfg->idcfg;
-	//BREAKPOINT(21);
-}
-
 void sysex(struct midi_event *event)
 {
 	struct midi_sysex_config *cfg;
@@ -132,7 +127,8 @@ void sysex(struct midi_event *event)
 		cfg = midi_sysex_buf(event);
 		if (cfg != NULL) {
 			if ((cfg->idcfg & SYSEX_IDMASK) == SYSEX_ID) {
-				config(cfg);
+				settings_sysex(cfg);
+				BREAKPOINT(0x21);
 			}
 		}
 	}
@@ -188,6 +184,7 @@ void system_update(void)
 
 void main(void)
 {
+	settings_init();
 	midi_event_init();
         if (IS_ENABLED(USE_IWDG))
 		IWDG->KR = 0xcccc;

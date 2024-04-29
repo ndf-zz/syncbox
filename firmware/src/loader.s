@@ -149,16 +149,3 @@ CopyCode:
 	msr msp, r0
 	bx r1
 
-/* Signature */
-	.word 0xffffffff
-	.word 0x00000000
-	.word 0x22202000
-	.word 0x74636146
-	.word 0x72612073
-	.word 0x68742065
-	.word 0x6e652065
-	.word 0x20796d65
-	.word 0x7420666f
-	.word 0x68747572
-	.word 0x00202022
-	.word 0x00000000

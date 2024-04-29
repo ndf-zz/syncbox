@@ -8,6 +8,7 @@
 #ifndef FLASH_H
 #define FLASH_H
 #include "stm32f3xx.h"
+#include "settings.h"
 
 #define FLASH_PAGESZ		2048U
 #define FLASH_WORDCOUNT		(FLASH_PAGESZ / sizeof(uint32_t))
@@ -22,10 +23,11 @@ struct flash_page {
 struct flash_memory {
 	struct flash_page loader;			// Loader
 	struct flash_page application[FLASH_CODEPAGES];	// Application code
-	struct flash_page presets[FLASH_PRESETPAGES];	// Presets
+	struct flash_page options[FLASH_PRESETPAGES];	// ROM Options
 	struct flash_page journal[FLASH_JNLPAGES];	// Settings
 };
 #define FLASHMEM ((struct flash_memory *) FLASH_BASE)
+#define OPTION ((struct option_struct *)(&FLASHMEM->options[0]))
 
 // Unlock flash memory for writing
 void flash_unlock(void);
