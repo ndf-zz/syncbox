@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Creator: fig2dev Version 3.2.8b -->
-<!-- CreationDate: 2024-04-29 13:57:21 -->
-<!-- Magnification: 1.26 -->
+<!-- CreationDate: 2024-04-30 01:01:57 -->
+<!-- Magnification: 1.57 -->
 <svg	xmlns="http://www.w3.org/2000/svg"
 	xmlns:xlink="http://www.w3.org/1999/xlink"
-	width="303pt" height="359pt"
+	width="379pt" height="448pt"
 	viewBox="783 810 4006 4740">
 <g fill="none">
 <!-- Line -->
@@ -16,16 +16,12 @@
 <!-- Line -->
 <polygon points=" 2070,4365 2070,2655 3870,2655 3870,4230 3015,4410 2835,4230" fill="#b0ffb0"/>
 <!-- Line -->
-<polyline points=" 2070,3375 3960,3375"
-	stroke="#000000" stroke-width="8px"/>
+<rect x="2070" y="2025" width="1800" height="630" fill="#ffffff"/>
 <!-- Line -->
 <polyline points=" 2070,1305 3960,1305"
 	stroke="#000000" stroke-width="8px"/>
 <!-- Line -->
 <polyline points=" 2070,2655 3960,2655"
-	stroke="#000000" stroke-width="8px"/>
-<!-- Line -->
-<polyline points=" 2070,1215 3960,1215"
 	stroke="#000000" stroke-width="8px"/>
 <!-- Line -->
 <polyline points=" 2070,2025 3960,2025"
@@ -36,9 +32,6 @@
 <!-- Line -->
 <polyline points=" 2070,4815 3960,4815"
 	stroke="#000000" stroke-width="8px" stroke-dasharray="40 40"/>
-<!-- Line -->
-<polyline points=" 3870,1215 3870,4230"
-	stroke="#000000" stroke-width="8px"/>
 <!-- Line -->
 <polyline points=" 3870,4545 3870,5535"
 	stroke="#000000" stroke-width="8px"/>
@@ -63,6 +56,15 @@
 <!-- Line -->
 <polyline points=" 2025,1260 1935,1260 1935,2610 2025,2610"
 	stroke="#000000" stroke-width="8px" stroke-dasharray="40 40"/>
+<!-- Line -->
+<polyline points=" 2070,1215 3960,1215"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Line -->
+<polyline points=" 3870,1215 3870,4230"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Line -->
+<polyline points=" 2070,3375 3960,3375"
+	stroke="#000000" stroke-width="8px" stroke-dasharray="40 40"/>
 <!-- Text -->
 <text xml:space="preserve" x="4005" y="1215" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x08000000</text>
 <!-- Text -->
@@ -76,19 +78,11 @@
 <!-- Text -->
 <text xml:space="preserve" x="2970" y="1710" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="middle">Application (16KiB)</text>
 <!-- Text -->
-<text xml:space="preserve" x="4005" y="3375" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x08008800</text>
-<!-- Text -->
-<text xml:space="preserve" x="4005" y="4095" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x08009000</text>
-<!-- Text -->
 <text xml:space="preserve" x="2970" y="5220" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="middle">Journal Page 29</text>
-<!-- Text -->
-<text xml:space="preserve" x="4005" y="4815" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x0807f800</text>
 <!-- Text -->
 <text xml:space="preserve" x="2970" y="3060" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="middle">Journal Page 0</text>
 <!-- Text -->
 <text xml:space="preserve" x="2970" y="3780" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="middle">Journal Page 1</text>
-<!-- Text -->
-<text xml:space="preserve" x="3420" y="1170" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="end">Loader (2KiB)</text>
 <!-- Text -->
 <text xml:space="preserve" x="1845" y="3690" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="end">Config Journal</text>
 <!-- Text -->
@@ -109,5 +103,13 @@
 <text xml:space="preserve" x="2970" y="2385" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="middle">Preset Data (14KiB)</text>
 <!-- Text -->
 <text xml:space="preserve" x="2970" y="945" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="120" text-anchor="middle">Syncbox Flash Memory (256x2KiB)</text>
+<!-- Text -->
+<text xml:space="preserve" x="4005" y="3375" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x0800c000</text>
+<!-- Text -->
+<text xml:space="preserve" x="4005" y="4095" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x08010000</text>
+<!-- Text -->
+<text xml:space="preserve" x="4005" y="4815" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="start">0x0807c000</text>
+<!-- Text -->
+<text xml:space="preserve" x="2970" y="1170" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="96" text-anchor="middle">Loader (2KiB)</text>
 </g>
 </svg>
