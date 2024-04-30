@@ -23,6 +23,7 @@
 #include "midi_usb.h"
 #include "display.h"
 #include "stm32f303xe.h"
+#include "settings.h"
 
 #define RCVBUFBITS		4U
 #define RCVBUFLEN		(1U << RCVBUFBITS)
@@ -48,7 +49,7 @@ struct midi_receiver {
 	uint8_t sysbuf[MIDI_MAX_SYSEX];	// sysex packet buffer
 } rcv[2];
 
-/* Copy filtered raw midi packet into receive buffer
+/* Copy raw midi packet into receive buffer
  *
  * Drop packet in case of overrun (tbc)
  *
@@ -263,6 +264,7 @@ static uint32_t rcv_signal(const uint32_t cableno)
 			// Timeout - may impact very slow sysex
 			midi_reset(cableno);
 			rcv[cableno].sense = 0;
+			rcv[cableno].sysid = 0;
 			return 1U;
 		}
 	}
@@ -288,6 +290,33 @@ void midi_receive(const uint32_t cableno, uint32_t val)
 	}
 }
 
+// Mark sysex buffer event as read
+void midi_sysex_done(struct midi_event *event)
+{
+	uint32_t cableno = (event->evt.raw.header & MIDI_CABLE_MASK) >> 4;
+	rcv[cableno].sysid = 0;
+}
+
+/* Filter event according to config cable filter
+ *
+ * Events not matching cable's filter will be converted
+ * to MIDI_CIN_RESERVED_0
+ *
+ * Sysex packets are always received
+ */
+static void filter_event(struct midi_event *event)
+{
+	uint32_t cableno = (event->evt.raw.header & MIDI_CABLE_MASK) >> 4;
+	uint32_t mask = 1U << (event->evt.raw.header & MIDI_CIN_MASK);
+	if (cableno == MIDI_CABLE_UART) {
+		mask &= config.fmidi | (1U << MIDI_CIN_EOX_3);
+	} else {
+		mask &= config.fusb | (1U << MIDI_CIN_EOX_3);
+	}
+	if (!mask)
+		event->evt.raw.header = MIDI_CABLE_MASK | MIDI_CIN_RESERVED_0;
+}
+
 /* Extract next event from buffer
  *
  * Returns pointer to event or NULL if no event available
@@ -299,6 +328,7 @@ struct midi_event *midi_event_poll(void)
 	if (event_buf.ri != event_buf.wi) {
 		uint32_t look = (event_buf.ri + 1) & RCVBUFMASK;
 		event = &event_buf.rcv[look];
+		filter_event(event);
 	} else {
 		if (rcv_sense()) {
 			display_midi_off();
@@ -318,13 +348,6 @@ struct midi_sysex_config *midi_sysex_buf(struct midi_event *event)
 {
 	uint32_t cableno = (event->evt.raw.header & MIDI_CABLE_MASK) >> 4;
 	return (struct midi_sysex_config *)&rcv[cableno].sysbuf[0];
-}
-
-// Mark sysex buffer event as read
-void midi_sysex_done(struct midi_event *event)
-{
-	uint32_t cableno = (event->evt.raw.header & MIDI_CABLE_MASK) >> 4;
-	rcv[cableno].sysid = 0;
 }
 
 /* Setup USB and MIDI devices */
