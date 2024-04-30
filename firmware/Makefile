@@ -64,8 +64,6 @@ DIALECT = -std=c99 -pedantic -ffreestanding
 OPTIMISE = -Os
 # Mark functions and data so linker can omit dead sections
 OPTIMISE += -ffunction-sections -fdata-sections
-# Place uninitialized global variables in the data section of the object file
-OPTIMISE += -fno-common
 # Perform link-time optimisation
 OPTIMISE += -flto
 
@@ -199,7 +197,7 @@ $(BINSIGNATURE): $(FIRMWARE)
 
 .PHONY: size
 size: $(TARGET)
-	$(SIZE) $(TARGET)
+	$(SIZE) --format=GNU $(TARGET)
 
 .PHONY: nm
 nm: $(TARGET)
