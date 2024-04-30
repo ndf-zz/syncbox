@@ -7,36 +7,125 @@
  */
 #include "settings.h"
 
-static __attribute__((used)) struct option_struct option = {
+static __attribute__((used))
+struct option_struct option = {
 	.preset = {
-	// Preset 0: Roland sync, fill + gates from note on/off
-	{
-	 125000U,		// 120bpm
-	 0,			// Disable intertia
-	 0,			// MIDI channel 1
-	 1U,			// Omni on
-	 SETTING_AUTO,		// Clock Master: Auto
-	 0x7f,			// Accept all messages from USB
-	 0x7f,			// Accept all messages from MIDI
-	 SETTING_CLOCK,		// CK source = clock
-	 SETTING_24PPQ,		// 24ppq
-	 SETTING_RS,		// RN source = run/stop
-	 0,			// N/A
-	 SETTING_NOTE,		// FL source = note on/off
-	 60U,			// Key C4
-	 SETTING_NOTE,		// G1 source = note on/off
-	 62U,			// Key D4
-	 SETTING_NOTE,		// G2 source = note on/off
-	 64U,			// Key E4
-	 SETTING_NOTE,		// G3 source = note on/off
-	 65U,			// Key F4
-	  },
-	{ 0xffffffff,
-          0xdeadbeef,
-          0xcafecafe,
-	  0x11223344,
-	  0x55667788, },		//
-	},
+		   // Preset 0: Omni on, Roland sync, fill+gates note on/off
+		   {
+		    .delay = 125000U,	// ~120bpm
+		    .inertia = 0,	// Disable inertia
+		    .channel = 0,	// MIDI channel 1
+		    .mode = SETTING_OMNION,	// Omni on
+		    .master = SETTING_AUTO,	// Clock Master: Auto
+		    .fusb = SETTING_DEFFILT,	// Note/Control/RT
+		    .fmidi = SETTING_DEFFILT,	// Note/Control/RT
+		    .reserved = 0xffffffff,	// Reserved - leave unprogrammed
+		    .output = {
+			       // CK Ouput
+			       {
+				.source = SETTING_CLOCK,
+				.divisor = SETTING_24PPQ,
+				.offset = 0,
+				.note = SETTING_INVALID,
+				},
+			       // RN Output
+			       {
+				.source = SETTING_RUNSTOP,
+				.divisor = 0,
+				.offset = 0,
+				.note = SETTING_INVALID,
+				},
+			       // FL Output
+			       {
+				.source = SETTING_NOTE,
+				.divisor = 0,
+				.offset = 0,
+				.note = 60U,	// C3
+				},
+			       // G1 Output
+			       {
+				.source = SETTING_NOTE,
+				.divisor = 0,
+				.offset = 0,
+				.note = 62U,	// D3
+				},
+			       // G2 Output
+			       {
+				.source = SETTING_NOTE,
+				.divisor = 0,
+				.offset = 0,
+				.note = 64U,	// E3
+				},
+			       // G3 Output
+			       {
+				.source = SETTING_NOTE,
+				.divisor = 0,
+				.offset = 0,
+				.note = 65U,	// E3
+				},
+			       },
+		    },
+		   // Preset 1: Omni off, internal clock, channel 1, notes only
+		   {
+		    .delay = 125000U,	// ~120bpm
+		    .inertia = 0,	// Disable inertia
+		    .channel = 0,	// MIDI channel 1
+		    .mode = SETTING_OMNIOFF,	// Omni off
+		    .master = 0x0f,	// Clock Master: Disabled
+		    .fusb = SETTING_DEFFILT,	// Note, Control, RT
+		    .fmidi = SETTING_DEFFILT,	// Note, Control, RT
+		    .reserved = 0xffffffff,	// Reserved - leave unprogrammed
+		    .output = {
+			       // CK Ouput
+			       {
+				.source = SETTING_NOTE,
+				.divisor = 0,
+				.offset = 0,
+				.note = 58U,
+				},
+			       // RN Output
+			       {
+				.source = SETTING_NOTE,
+				.divisor = 0,
+				.offset = 0,
+				.note = 59U,
+				},
+			       // FL Output
+			       {
+				.source = SETTING_NOTE,
+				.divisor = 0,
+				.offset = 0,
+				.note = 60U,	// C3
+				},
+			       // G1 Output
+			       {
+				.source = SETTING_NOTE,
+				.divisor = 0,
+				.offset = 0,
+				.note = 62U,	// D3
+				},
+			       // G2 Output
+			       {
+				.source = SETTING_NOTE,
+				.divisor = 0,
+				.offset = 0,
+				.note = 64U,	// E3
+				},
+			       // G3 Output
+			       {
+				.source = SETTING_NOTE,
+				.divisor = 0,
+				.offset = 0,
+				.note = 65U,	// E3
+				},
+			       },
+		    },
+		   // Terminal Preset - Outputs disabled
+		   {
+		    .delay = 0xffffffff,
+		    .reserved = 0xffffffff,
+		    },
+		    },
 	.usbdesc = 0,
 	.usbcfg = 0,
 	.version = SYSTEMVERSION,

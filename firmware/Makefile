@@ -9,24 +9,35 @@ PROJECT = syncbox
 # Firmware Version
 VERSION = 20240401
 
+# Conditional compilation options
+
+# Blink note LED on reception of matching Note-Off message
+CPPFLAGS += -DNOTE_OFF_BLINK
+# Enable sleep to low power mode
+CPPFLAGS += -DENABLE_SLEEP
+# Lock code memory pages in system_init() - Requires power on reset to clear
+#CPPFLAGS += -DLOCK_CODE_MEMORY
+# Lock GPIO ports in system_init() - Requires power on reset to clear
+#CPPFLAGS += -DLOCK_GPIO
+# Enable IWDG in user interface handler
+#CPPFLAGS += -DUSE_IWDG
+
 # Build Objects
-
-# main() [required]
-OBJECTS = src/main.o
-
-# Extra build objects
-OBJECTS += src/flash.o
-OBJECTS += src/midi_event.o
-OBJECTS += src/midi_uart.o
-OBJECTS += src/midi_usb.o
-OBJECTS += src/display.o
-OBJECTS += src/settings.o
 
 # system_init(), reset and fault handers [required]
 OBJECTS += src/system.o
 
 # Cortex-M4 vector table [required]
 OBJECTS += src/vtable.o
+
+# Extra build objects
+OBJECTS += src/main.o
+OBJECTS += src/flash.o
+OBJECTS += src/midi_event.o
+OBJECTS += src/midi_uart.o
+OBJECTS += src/midi_usb.o
+OBJECTS += src/display.o
+OBJECTS += src/settings.o
 
 # Link script
 LINKSCRIPT = include/stm32f303xe_ram.ld
@@ -89,18 +100,8 @@ ARMOPTS += -mthumb
 CPPFLAGS = -DSTM32F303xE
 # Add include path for headers
 CPPFLAGS += -Iinclude
-# Enable sleep to low power mode
-CPPFLAGS += -DENABLE_SLEEP
-# Lock code memory pages in system_init() - Requires power on reset to clear
-#CPPFLAGS += -DLOCK_CODE_MEMORY
-# Lock GPIO ports in system_init() - Requires power on reset to clear
-#CPPFLAGS += -DLOCK_GPIO
-# Enable IWDG in user interface handler
-#CPPFLAGS += -DUSE_IWDG
-# Store firmware version in binary
+# Firmware version number
 CPPFLAGS += -DSYSTEMVERSION=$(VERSION)
-FIRMWARE = $(PROJECT)_$(VERSION).bin
-BINSIGNATURE = $(FIRMWARE).sign
 
 # Padding value for unused program space - default value fills program
 # space with invalid Thumb instruction: 0xdede
@@ -113,7 +114,7 @@ LDLIBS =
 LDFLAGS = -T$(LINKSCRIPT)
 # Don't include stdlib when linking
 LDFLAGS += -nostdlib
-# Omit dead sections [prod] (note: this may cause problems with LTO)
+# Omit dead sections
 LDFLAGS += -Wl,--gc-sections
 
 # Combined Compiler flags
@@ -148,6 +149,7 @@ OCDERASE += -c shutdown
 # binutils
 OBJCOPY = arm-none-eabi-objcopy
 SIZE = arm-none-eabi-size
+SIZEFLAGS = --format=GNU
 NM = arm-none-eabi-nm
 NMFLAGS = -n -r
 DISFLAGS = -d -S
@@ -155,6 +157,10 @@ OBJDUMP = arm-none-eabi-objdump
 GPG = gpg
 GPGFLAGS = -b --local-user $(GPGKEY)
 DD = dd
+
+# Output files
+FIRMWARE = $(PROJECT)_$(VERSION).bin
+BINSIGNATURE = $(FIRMWARE).sign
 
 # Default target is $(TARGET)
 .PHONY: elf
@@ -197,7 +203,7 @@ $(BINSIGNATURE): $(FIRMWARE)
 
 .PHONY: size
 size: $(TARGET)
-	$(SIZE) --format=GNU $(TARGET)
+	$(SIZE) $(SIZEFLAGS) $(TARGET)
 
 .PHONY: nm
 nm: $(TARGET)

@@ -12,16 +12,16 @@
 #include "flash.h"
 
 // Global config
-uint32_t config[SETTINGS_KEYLEN];
+struct general_config config;
 
 // Load preset from ROM
 void settings_preset(uint32_t preset)
 {
-	uint32_t oft = SETTINGS_KEYLEN * preset;
-	uint32_t *src = &OPTION->preset[0][oft];
-	uint32_t *dst = &config[0];
+	uint32_t *src = (uint32_t *)&OPTION->preset[preset];
+	uint32_t *dst = (uint32_t *)&config;
 	uint32_t cnt = 0;
-	while (cnt < SETTINGS_KEYLEN) {
+	uint32_t len = sizeof(struct general_config)>>2;
+	while (cnt < len) {
 		*dst++ = *src++;
 		cnt++;
 	}
