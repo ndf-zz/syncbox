@@ -9,10 +9,13 @@ PROJECT = syncbox
 # Firmware Version
 VERSION = 20240401
 
+# SYSEX Manufacturer and device ID
+SYSID = 0x1100007d
+
 # Conditional compilation options
 
 # Blink note LED on reception of matching Note-Off message
-CPPFLAGS += -DNOTE_OFF_BLINK
+#CPPFLAGS += -DNOTE_OFF_BLINK
 # Enable sleep to low power mode
 CPPFLAGS += -DENABLE_SLEEP
 # Lock code memory pages in system_init() - Requires power on reset to clear
@@ -100,6 +103,8 @@ ARMOPTS += -mthumb
 CPPFLAGS = -DSTM32F303xE
 # Add include path for headers
 CPPFLAGS += -Iinclude
+# Sysex manufacturer and device ID
+CPPFLAGS += -DSYSEX_ID=$(SYSID)
 # Firmware version number
 CPPFLAGS += -DSYSTEMVERSION=$(VERSION)
 

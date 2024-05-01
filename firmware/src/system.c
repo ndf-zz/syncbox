@@ -191,8 +191,8 @@ void system_init(void)
 		GPIOF->LCKR = 0x0001ffff;
 	}
 	// Disable unused peripherals
-	RCC->AHBENR &= ~(RCC_AHBENR_CRCEN | RCC_AHBENR_GPIOBEN
-			 | RCC_AHBENR_GPIODEN | RCC_AHBENR_GPIOFEN);
+	RCC->AHBENR &= ~(RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIODEN |
+			 RCC_AHBENR_GPIOFEN);
 
 	main();
 

@@ -350,11 +350,21 @@ struct midi_sysex_config *midi_sysex_buf(struct midi_event *event)
 	return (struct midi_sysex_config *)&rcv[cableno].sysbuf[0];
 }
 
+// Reconfigure CRC peripheral for use with Sysex Data
+static void crc_init(void)
+{
+	CRC->CR |= CRC_CR_RESET;
+	CRC->CR = CRC_CR_POLYSIZE_0|CRC_CR_POLYSIZE_1;
+	CRC->POL = CRC7_POLY;
+	CRC->INIT = CRC7_INIT;
+}
+
 /* Setup USB and MIDI devices */
 void midi_event_init(void)
 {
 	event_buf.ri = 0U;
 	event_buf.wi = 0U;
+	crc_init();
 	midi_uart_init();
 	midi_usb_init();
 }

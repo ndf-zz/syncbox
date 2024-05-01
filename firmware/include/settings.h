@@ -28,7 +28,7 @@
 #define SETTING_8TH		24U	// refclock / 24 -> ~ 8th note (PO)
 #define SETTING_BEAT		48U	// refclock / 48 -> on the beat
 #define SETTING_BAR		192U	// refclock / 192 -> on the bar
-#define SETTING_AUTO		0xf0	// auto-select clock master
+#define SETTING_AUTO		0x70	// auto-select clock master
 #define SETTING_CLOCK		(1U<<0)	// use clock/div for output
 #define SETTING_RUNSTOP		(1U<<1)	// Use run/stop for output
 #define SETTING_CONTINUE	(1U<<2)	// Use continue for output
@@ -104,6 +104,7 @@ struct general_config {
 // Flash ROM data structure
 struct option_struct {
 	struct general_config preset[PRESETS_LEN];
+	uint32_t sysid;
 	uint32_t usbdesc;
 	uint32_t usbcfg;
 	uint32_t version;

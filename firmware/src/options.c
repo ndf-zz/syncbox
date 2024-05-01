@@ -61,7 +61,7 @@ struct option_struct option = {
 				.source = SETTING_NOTE,
 				.divisor = 0,
 				.offset = 0,
-				.note = 65U,	// E3
+				.note = 65U,	// F3
 				},
 			       },
 		    },
@@ -126,6 +126,7 @@ struct option_struct option = {
 		    .reserved = 0xffffffff,
 		    },
 		    },
+	.sysid = SYSEX_ID,
 	.usbdesc = 0,
 	.usbcfg = 0,
 	.version = SYSTEMVERSION,

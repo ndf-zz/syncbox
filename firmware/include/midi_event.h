@@ -30,11 +30,20 @@ struct midi_sysex_config {
 	uint32_t idcfg;
 	uint8_t data[];
 };
-#define SYSEX_IDMASK 0xffffff
 #define MIDI_MAX_SYSEX 46U
 
 // Special case: No pending event
 #define MIDI_EVENT_NULL		NULL
+
+// Provide a system id CRC match value
+#ifndef SYSEX_ID
+#define SYSEX_ID 0x1100007d
+#endif
+#define SYSEX_INVID ( \
+	((SYSEX_ID&0xff)<<24U) | \
+	(((SYSEX_ID>>8U)&0xff)<<16U) | \
+	(((SYSEX_ID>>16U)&0xff)<<8U) | \
+	((SYSEX_ID>>24U)&0xff))
 
 // MIDI Event Code Indexes
 #define MIDI_CIN_MASK		0xf

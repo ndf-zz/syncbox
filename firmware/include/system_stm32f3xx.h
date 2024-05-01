@@ -48,6 +48,10 @@
 #define STACK_BOTTOM	0x2000e000UL
 #define MSP_INIT ( (void(*)(void))STACK_TOP )
 
+// CRC Constants
+#define CRC7_POLY		0x09
+#define CRC7_INIT		0x0
+
 // NVIC Constants
 #define PRIGROUP_4_4		0x5
 #define PRIGROUP0		(0U<<2)

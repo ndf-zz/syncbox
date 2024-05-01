@@ -10,6 +10,7 @@
 #include "midi_event.h"
 #include "display.h"
 #include "settings.h"
+#include "flash.h"
 
 /* Output port constants */
 #define GATE1 GPIO_ODR_3
@@ -24,7 +25,6 @@ static const uint32_t out_pins[6U] = {
 };
 
 /* Device config */
-#define SYSEX_ID	0x7d	// temp: 7d:00:00:00
 #define CONFIG_LENGTH	8U
 
 static uint32_t beat;
@@ -303,17 +303,100 @@ static void rt_msg(struct midi_event *msg)
 	}
 }
 
+// Handle a preset request
+static void config_preset(uint32_t preset)
+{
+	if (preset < PRESETS_LEN) {
+		settings_preset(preset);
+	}
+}
+
+// Handle an output config update
+static void config_output(uint8_t *cfg)
+{
+	if (cfg[1] < SETTINGS_NROUTS) {
+		struct output_config *out = &config.output[cfg[1]];
+		out->source = cfg[2];
+		out->divisor = cfg[3] | (cfg[4]<<7);
+		out->offset = cfg[5] | (cfg[6]<<7);
+		out->note = cfg[7];
+	}
+}
+
+// Handle a general config update
+static void config_general(uint8_t *cfg)
+{
+	config.delay = cfg[1] | (cfg[2]<<7) | (cfg[3]<<14) | (cfg[4]<<21);
+	config.inertia = cfg[5];
+	config.channel = cfg[6];
+	config.mode = cfg[7];
+	config.master = cfg[8];
+	config.fusb = cfg[9] | (cfg[10]<<7) | (cfg[11]<<14);
+	config.fmidi = cfg[12] | (cfg[13]<<7) | (cfg[14]<<14);
+	config.reserved = cfg[15];
+}
+
+// Process a validated configuration request packet
+static void config_message(uint8_t *cfg, uint32_t len)
+{
+	switch (cfg[0]) {
+	case 0x01:
+	case 0x02:
+		// Ignore ACK/NACK
+		break;
+	case 0x03:
+		if (len == 2) {
+			config_preset(cfg[1]);
+		}
+		break;
+	case 0x04:
+		if (len == 16) {
+			config_general(cfg);
+		}
+		break;
+	case 0x05:
+		if (len == 8) {
+			config_output(cfg);
+		}
+		break;
+	default:
+		break;
+	};
+}
+
+// Compute the expected CRC-7/MMC value on the received message
+static uint32_t sysex_crc(struct midi_sysex_config *cfg, uint32_t len)
+{
+	CRC->CR |= CRC_CR_RESET;
+	CRC->DR = SYSEX_INVID;
+	uint32_t i = 0;
+	while (i < len) {
+		*(__IO uint8_t *)(__IO void *)(&CRC->DR) = cfg->data[i];
+		++i;
+	}
+	return CRC->DR;
+}
+
+static void sysex_config(struct midi_sysex_config *cfg, uint32_t len)
+{
+	// Minimum message includes header, command and crc
+	if (len > 5) {
+		len -= 5;
+		uint32_t crc = sysex_crc(cfg, len);
+		if (crc == cfg->data[len]) {
+			config_message(&cfg->data[0], len);
+		}
+	}
+}
+
 static void sysex(struct midi_event *event)
 {
 	struct midi_sysex_config *cfg;
 	uint32_t len = event->evt.raw.midi1;
-	if (len == CONFIG_LENGTH) {
-		cfg = midi_sysex_buf(event);
-		if (cfg != NULL) {
-			if ((cfg->idcfg & SYSEX_IDMASK) == SYSEX_ID) {
-				settings_sysex(cfg);
-				BREAKPOINT(0x21);
-			}
+	cfg = midi_sysex_buf(event);
+	if (cfg != NULL) {
+		if (cfg->idcfg == OPTION->sysid) {
+			sysex_config(cfg, len);
 		}
 	}
 	midi_sysex_done(event);
