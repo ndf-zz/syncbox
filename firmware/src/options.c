@@ -19,7 +19,7 @@ struct option_struct option = {
 		    .master = SETTING_AUTO,	// Clock Master: Auto
 		    .fusb = SETTING_DEFFILT,	// Note/Control/RT
 		    .fmidi = SETTING_DEFFILT,	// Note/Control/RT
-		    .reserved = 0xffffffff,	// Reserved - leave unprogrammed
+		    .triglen = 8U,	// 8ms Trigger Length
 		    .output = {
 			       // CK Ouput
 			       {
@@ -74,7 +74,7 @@ struct option_struct option = {
 		    .master = 0x0f,	// Clock Master: Disabled
 		    .fusb = SETTING_DEFFILT,	// Note, Control, RT
 		    .fmidi = SETTING_DEFFILT,	// Note, Control, RT
-		    .reserved = 0xffffffff,	// Reserved - leave unprogrammed
+		    .triglen = 0,	// Minimum trigger length
 		    .output = {
 			       // CK Ouput
 			       {
@@ -122,8 +122,7 @@ struct option_struct option = {
 		    },
 		   // Terminal Preset - Outputs disabled
 		   {
-		    .delay = 0xffffffff,
-		    .reserved = 0xffffffff,
+		    .delay = 125000U,
 		    },
 		    },
 	.sysid = SYSEX_ID,

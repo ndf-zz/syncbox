@@ -33,7 +33,7 @@
 #define SETTING_RUNSTOP		(1U<<1)	// Use run/stop for output
 #define SETTING_CONTINUE	(1U<<2)	// Use continue for output
 #define SETTING_NOTE		(1U<<3)	// Use note on/off for output
-#define SETTING_TRIG		(1U<<4)	// Limit pulse length to 96th period
+#define SETTING_TRIG		(1U<<4)	// Set output's duration to triglen
 #define SETTING_CTRLDIV		(1U<<5)	// Use controller for divisor
 #define SETTING_CTRLOFT		(1U<<6)	// Use controller for phase offset
 #define SETTING_OMNION		1U	// Omni enabled, Poly On
@@ -53,7 +53,7 @@ enum setting_key {
 	SETTING_MASTER,		// Master clock selection
 	SETTING_FUSB,		// USB Cable event filter
 	SETTING_FMIDI,		// MIDI Cable event filter
-	SETTING_RSVD,		// Reserved
+	SETTING_TRIGLEN,	// Trigger output length in ms
 	SETTING_CKSOURCE,	// CK source
 	SETTING_CKDIV,		// CK divisor
 	SETTING_CKOFT,		// CK offset
@@ -97,7 +97,7 @@ struct general_config {
 	uint32_t master;
 	uint32_t fusb;
 	uint32_t fmidi;
-	uint32_t reserved;
+	uint32_t triglen;
 	struct output_config output[SETTINGS_NROUTS];
 };
 
