@@ -389,13 +389,14 @@ static void sysex_config(struct midi_sysex_config *cfg, uint32_t len)
 	}
 }
 
+// Sysex ID is matched against build value in case ROM is damaged
 static void sysex(struct midi_event *event)
 {
 	struct midi_sysex_config *cfg;
 	uint32_t len = event->evt.raw.midi1;
 	cfg = midi_sysex_buf(event);
 	if (cfg != NULL) {
-		if (cfg->idcfg == OPTION->sysid) {
+		if (cfg->idcfg == SYSEX_ID) {
 			sysex_config(cfg, len);
 		}
 	}
