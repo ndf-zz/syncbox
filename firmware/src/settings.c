@@ -49,5 +49,5 @@ void settings_save(void)
 // Prepare settings interface and read from flash
 void settings_init(void)
 {
-	settings_preset(0);
+	settings_preset(2);
 }

@@ -41,6 +41,7 @@ OBJECTS += src/midi_uart.o
 OBJECTS += src/midi_usb.o
 OBJECTS += src/display.o
 OBJECTS += src/settings.o
+OBJECTS += src/timer.o
 
 # Link script
 LINKSCRIPT = include/stm32f303xe_ram.ld

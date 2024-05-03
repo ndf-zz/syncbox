@@ -113,5 +113,6 @@ void nmi_handler(void);
 void fault_handler(void);
 void undefined_handler(void);
 void midi_uart_receive(void);
+void timer_update(void);
 
 #endif /* SYSTEM_H */

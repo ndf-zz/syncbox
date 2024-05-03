@@ -24,6 +24,7 @@
 #include "display.h"
 #include "stm32f303xe.h"
 #include "settings.h"
+#include "timer.h"
 
 #define RCVBUFBITS		4U
 #define RCVBUFLEN		(1U << RCVBUFBITS)

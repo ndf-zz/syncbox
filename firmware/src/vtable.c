@@ -54,7 +54,7 @@ void (*vtable[])(void) = {
 	undefined_handler,	// TIM1_UP_TIM16_IRQHandler
 	undefined_handler,	// TIM1_TRG_COM_TIM17_IRQHandler
 	undefined_handler,	// TIM1_CC_IRQHandler
-	undefined_handler,	// TIM2_IRQHandler
+	timer_update,		// TIM2_IRQHandler
 	undefined_handler,	// TIM3_IRQHandler
 	undefined_handler,	// TIM4_IRQHandler
 	undefined_handler,	// I2C1_EV_IRQHandler
