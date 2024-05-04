@@ -27,6 +27,7 @@
 #define ____is_defined(arg1_or_junk)	__take_second_arg(arg1_or_junk 1, 0, 0)
 #define IS_ENABLED(option) __is_defined(option)
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+#define ALIGN16(x) ((~15U) & ((x) + 15U))
 
 // convenience macros
 #define wait_for_bit_set(reg, bit) do { } while (((reg)&bit) != bit)

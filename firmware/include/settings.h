@@ -7,6 +7,7 @@
 #define SETTINGS_H
 #include <stdint.h>
 #include "midi_event.h"
+#include "usb.h"
 
 #define SETTINGS_BITS		5U
 #define SETTINGS_KEYLEN		(1U<<SETTINGS_BITS)
@@ -104,11 +105,13 @@ struct general_config {
 // Flash ROM data structure
 struct option_struct {
 	struct general_config preset[PRESETS_LEN];
+	struct usb_config usb;
 	uint32_t sysid;
-	uint32_t usbdesc;
-	uint32_t usbcfg;
 	uint32_t version;
 };
+
+// Global options rom
+extern struct option_struct *option;
 
 // Global settings
 extern struct general_config config;
