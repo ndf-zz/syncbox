@@ -1,0 +1,49 @@
+{
+ "general": {
+  "tempo": "120.000 bpm",
+  "inertia": "5.0 ms",
+  "channel": 1,
+  "mode": "omni on",
+  "fusb": "default",
+  "fmidi": "default",
+  "triglen": "20 ms"
+ },
+ "output": {
+  "ck": {
+   "flags": "clock",
+   "divisor": "24ppq",
+   "offset": 0,
+   "note": 0
+  },
+  "rs": {
+   "flags": "runstop",
+   "divisor": 0,
+   "offset": 0,
+   "note": 0
+  },
+  "fl": {
+   "flags": "continue | trig",
+   "divisor": 0,
+   "offset": 0,
+   "note": 0
+  },
+  "g1": {
+   "flags": "clock | trig | run mask",
+   "divisor": "1 16th",
+   "offset": 0,
+   "note": 0
+  },
+  "g2": {
+   "flags": "clock | trig | run mask",
+   "divisor": "1 beat",
+   "offset": 0,
+   "note": 0
+  },
+  "g3": {
+   "flags": "clock | trig | run mask",
+   "divisor": "1 bar",
+   "offset": 0,
+   "note": 0
+  }
+ }
+}
