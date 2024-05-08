@@ -18,6 +18,7 @@ struct timer_state {
 	uint32_t phase;
 	uint32_t nextout;
 	uint32_t running;
+	uint32_t on;
 };
 
 extern struct timer_state timer;

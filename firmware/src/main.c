@@ -30,7 +30,7 @@ uint32_t trig_start[6U];
 /* Device config */
 #define CONFIG_LENGTH	8U
 
-// Return a bit mask for outputs matching source condition
+// Return a bit mask for outputs matching provided condition flags
 static uint32_t output_mask(uint32_t condition)
 {
 	struct output_config *out;
@@ -38,7 +38,7 @@ static uint32_t output_mask(uint32_t condition)
 	uint32_t mask = 0;
 	do {
 		out = &config.output[i];
-		if (out->source & condition) {
+		if (out->flags & condition) {
 			mask |= out_pins[i];
 		}
 		++i;
@@ -59,7 +59,7 @@ static void output_expire(uint32_t nt)
 			if (oset & out_pins[i]) {
 				// out is currently set
 				out = &config.output[i];
-				if (out->source &
+				if (out->flags &
 				    (SETTING_TRIG | SETTING_CONTINUE)) {
 					elap = nt - trig_start[i];
 					if (elap > config.triglen) {
@@ -88,7 +88,7 @@ static void output_noteon(uint32_t note)
 	uint32_t mask = 0;
 	do {
 		out = &config.output[i];
-		if (out->source & SETTING_NOTE) {
+		if (out->flags & SETTING_NOTE) {
 			if (out->note == note) {
 				mask |= out_pins[i];
 				trig_start[i] = Uptime;
@@ -110,7 +110,7 @@ static void output_noteoff(uint32_t note)
 	uint32_t mask = 0;
 	do {
 		out = &config.output[i];
-		if (out->source & SETTING_NOTE) {
+		if (out->flags & SETTING_NOTE) {
 			if (out->note == note) {
 				mask |= out_pins[i];
 			}
@@ -133,7 +133,7 @@ static void output_continue(void)
 	uint32_t mask = 0;
 	do {
 		out = &config.output[i];
-		if (out->source & SETTING_CONTINUE) {
+		if (out->flags & SETTING_CONTINUE) {
 			mask |= out_pins[i];
 			trig_start[i] = Uptime;
 		}
@@ -145,10 +145,10 @@ static void output_continue(void)
 // Set the lower 7 bits of divisor and/or offset
 static void set_divlo(struct output_config *out, uint32_t value)
 {
-	if (out->source & SETTING_CTRLDIV) {
+	if (out->flags & SETTING_CTRLDIV) {
 		out->divisor = (out->divisor & (0x7f << 7)) | value;
 	}
-	if (out->source & SETTING_CTRLOFT) {
+	if (out->flags & SETTING_CTRLOFT) {
 		out->offset = (out->offset & (0x7f << 7)) | value;
 	}
 }
@@ -157,10 +157,10 @@ static void set_divlo(struct output_config *out, uint32_t value)
 static void set_divhi(struct output_config *out, uint32_t value)
 {
 	value <<= 7;
-	if (out->source & SETTING_CTRLDIV) {
+	if (out->flags & SETTING_CTRLDIV) {
 		out->divisor = (out->divisor & 0x7f) | value;
 	}
-	if (out->source & SETTING_CTRLOFT) {
+	if (out->flags & SETTING_CTRLOFT) {
 		out->offset = (out->offset & 0x7f) | value;
 	}
 }
@@ -177,29 +177,45 @@ static void set_divoft(struct output_config *out, uint32_t number,
 			set_divhi(out, value);
 		}
 	} else {
-		if (out->source & SETTING_CTRLDIV)
+		if (out->flags & SETTING_CTRLDIV) {
 			out->divisor = value;
-		if (out->source & SETTING_CTRLOFT)
+		}
+		if (out->flags & SETTING_CTRLOFT) {
 			out->offset = value;
+		}
 	}
 }
 
-// Update divisor and/or offset on matching outputs
-static void output_divoft(uint32_t number, uint32_t value)
+// Update outputs with configured with controller flag
+static void output_controller(uint32_t number, uint32_t value)
 {
 	struct output_config *out;
 	uint32_t i = 0;
+	uint32_t mask = 0;
 	do {
 		out = &config.output[i];
-		if (out->source & (SETTING_CTRLDIV | SETTING_CTRLOFT)) {
+		if (out->flags & (SETTING_CTRLDIV | SETTING_CTRLOFT)) {
 			if (out->note == number
 			    || (out->note > 31 && out->note < 64
 				&& (out->note - 32U) == number)) {
 				set_divoft(out, number, value);
 			}
 		}
+		if (out->flags & SETTING_CTRL) {
+			if (out->note == number) {
+				if (value < 64) {
+					// Switch Off
+					mask |= out_pins[i] << 16;
+				} else {
+					// Switch On
+					mask |= out_pins[i];
+					trig_start[i] = Uptime;
+				}
+			}
+		}
 		++i;
 	} while (i < SETTINGS_NROUTS);
+	GPIOC->BSRR = mask;
 }
 
 // Handle a MIDI mode message
@@ -228,7 +244,7 @@ static void ctrl_msg(uint32_t number, uint32_t value)
 	if (number > 121 && number < 128) {
 		mode_msg(number);
 	} else {
-		output_divoft(number, value);
+		output_controller(number, value);
 	}
 }
 
@@ -288,6 +304,7 @@ static void rt_msg(struct midi_event *msg)
 		break;
 	case MIDI_RT_STOP:
 		output_stop();
+		timer.on = 0;
 		break;
 	case MIDI_RT_RESET:
 		output_alloff();
@@ -304,6 +321,8 @@ static void config_preset(uint32_t preset)
 {
 	if (preset < PRESETS_LEN) {
 		settings_preset(preset);
+		// Temp
+		TIM2->ARR = config.delay;
 	}
 }
 
@@ -312,10 +331,10 @@ static void config_output(uint8_t * cfg)
 {
 	if (cfg[1] < SETTINGS_NROUTS) {
 		struct output_config *out = &config.output[cfg[1]];
-		out->source = cfg[2];
-		out->divisor = cfg[3] | (cfg[4] << 7);
-		out->offset = cfg[5] | (cfg[6] << 7);
-		out->note = cfg[7];
+		out->flags = cfg[2] | (cfg[3] << 7);
+		out->divisor = cfg[4] | (cfg[5] << 7);
+		out->offset = cfg[6] | (cfg[7] << 7);
+		out->note = cfg[8];
 	}
 }
 
@@ -323,16 +342,18 @@ static void config_output(uint8_t * cfg)
 static void config_general(uint8_t * cfg)
 {
 	config.delay = cfg[1] | (cfg[2] << 7) | (cfg[3] << 14) | (cfg[4] << 21);
-	config.inertia = cfg[5];
+	config.inertia = cfg[5];	// Inertia is specified in uptimes
 	config.channel = cfg[6];
 	config.mode = cfg[7];
 	config.master = cfg[8];
 	config.fusb = cfg[9] | (cfg[10] << 7) | (cfg[11] << 14);
 	config.fmidi = cfg[12] | (cfg[13] << 7) | (cfg[14] << 14);
-	config.triglen = cfg[15];
+	config.triglen = (cfg[15] << 3);	// Convert triglen ms to uptimes
+	// Temp
+	TIM2->ARR = config.delay;
 }
 
-// Process a validated configuration request packet
+// Process a validated configuration request packet (temp)
 static void config_message(uint8_t * cfg, uint32_t len)
 {
 	switch (cfg[0]) {
@@ -351,7 +372,7 @@ static void config_message(uint8_t * cfg, uint32_t len)
 		}
 		break;
 	case 0x05:
-		if (len == 8) {
+		if (len == 9) {
 			config_output(cfg);
 		}
 		break;
@@ -408,7 +429,6 @@ void system_update(void)
 	do {
 		msg = midi_event_poll();
 		if (msg != NULL) {
-			//TRACEVAL(5U, msg->evt.val);
 			uint8_t cin = msg->evt.raw.header & MIDI_CIN_MASK;
 			switch (cin) {
 			case MIDI_CIN_EOX_3:	// special case

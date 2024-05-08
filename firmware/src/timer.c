@@ -26,22 +26,34 @@ static uint32_t delinv;
 static void update_nextout(void)
 {
 	struct output_config *out;
-	uint32_t ophase;
+	uint32_t phase;
+	uint32_t period;
+	uint32_t setmark;
+	uint32_t clrmark;
 	uint32_t i = 0;
 	timer.nextout = 0;
 	do {
 		out = &config.output[i];
-		if (out->source & SETTING_CLOCK) {
-			ophase = timer.phase % (out->divisor << 1);
-			if (ophase == out->offset) {
+		if (out->flags & SETTING_CLOCK) {
+			period = out->divisor << 1;
+			setmark = out->offset % period;
+			clrmark = (out->divisor + out->offset) % period;
+			phase = timer.phase % period;
+
+			if (phase == setmark) {
 				// Set output
 				timer.nextout |= out_pins[i];
-				if (out->source & SETTING_TRIG) {
+				if (out->flags & SETTING_TRIG) {
 					// This has not yet happened - fudge
 					trig_start[i] =
-					    Uptime + config.delay / 24000U;
+					    Uptime +
+					    config.delay / SYSTEMTICKLEN;
 				}
-			} else if (ophase == out->divisor + out->offset) {
+				// TODO: this requires attention
+				if ((out->flags & SETTING_RUNMASK) && !timer.on) {
+					timer.nextout &= ~out_pins[i];
+				}
+			} else if (phase == clrmark) {
 				// outputs clear even if trig set
 				timer.nextout |= (out_pins[i] << 16);
 			}
@@ -58,7 +70,6 @@ void timer_update(void)
 	if (timer.phase % 96U == 0) {
 		display_midi_blink();
 	}
-
 	// Prepare
 	timer.phase++;
 	update_nextout();
@@ -79,6 +90,7 @@ void timer_preroll(void)
 // Generate a reset event and roll timer
 static void timer_roll(void)
 {
+	timer.on = 1;
 	if (!timer.running) {
 		TIM2->CNT = 0;
 		TIM2->CR1 |= TIM_CR1_CEN;
@@ -97,17 +109,17 @@ void timer_clock(struct midi_event *event)
 	if (timer.running) {
 		if (bc > 1) {
 			// temp: track rate and ignore phase
-			uint32_t dt = 24000 * (co - lco);
+			uint32_t dt = SYSTEMTICKLEN * (co - lco);
 			uint64_t dc = ((uint64_t) config.delay) << 2;
 			uint32_t nv =
 			    (uint32_t) ((31 * dc + dt + (1U << 6)) >> 7);
 			TRACEVAL(2, nv);
 			config.delay = nv;
 
-			delinv = config.delay / 24000U;
+			delinv = config.delay / SYSTEMTICKLEN;
 			TIM2->ARR = config.delay;
-			GPIOC->BSRR = out_pins[1];
-			trig_start[1] = Uptime;
+			//GPIOC->BSRR = out_pins[1];
+			//trig_start[1] = Uptime;
 		}
 	} else {
 		timer_roll();
