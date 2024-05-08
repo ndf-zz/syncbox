@@ -1,7 +1,7 @@
 {
  "general": {
-  "tempo": "120.000 bpm",
-  "inertia": "5.0 ms",
+  "tempo": "120 bpm",
+  "inertia": "5 ms",
   "channel": 1,
   "mode": "omni on",
   "fusb": "default",
@@ -22,26 +22,26 @@
    "note": 0
   },
   "fl": {
-   "flags": "continue | trig",
+   "flags": "continue",
    "divisor": 0,
    "offset": 0,
    "note": 0
   },
   "g1": {
    "flags": "clock | trig | run mask",
-   "divisor": "1 16th",
+   "divisor": "16th",
    "offset": 0,
    "note": 0
   },
   "g2": {
    "flags": "clock | trig | run mask",
-   "divisor": "1 beat",
+   "divisor": "3 16th",
    "offset": 0,
    "note": 0
   },
   "g3": {
    "flags": "clock | trig | run mask",
-   "divisor": "1 bar",
+   "divisor": "beat",
    "offset": 0,
    "note": 0
   }

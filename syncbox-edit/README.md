@@ -2,61 +2,13 @@
 
 Read, write and update syncbox configuration.
 
-
 ## Usage
 
 	$ syncbox-edit -h
-	usage: syncbox-edit [-h] [-l] [-c | -s | -r | -u] [-p PORT | -t UART] [-i INC]
+	usage: syncbox-edit [-h] [-c | -s | -r | -u] [-l] [-p PORT | -t UART] [-i INC]
 	                    [-e SET]
 	                    [file]
 	...
-
-Option -i specifies a comma-separated list of sections that
-apply to the operating mode. Available options are:
-
-   - general: General configuration
-   - ck: ck output
-   - rs: rs output
-   - fl: fl output
-   - g1: g1 output
-   - g2: g2 output
-   - g3: g3 output
-   - src: select all sections present in input file (default)
-   - all: select all configuration sections
-
-Option -e enables override of a specific setting using
-the form: section.key=value and may be specified multiple
-times. Section may be omitted for general
-configuration settings. Recognised settings are:
-
-   - general.tempo: Set internal tempo in bpm
-   - general.inertia: Set run/stop inertia in ms
-   - general.channel: Set MIDI basic channel, 1-16
-   - general.mode: Set MIDI mode "omni on" or "omni off"
-   - general.fusb: USB cable event filter
-   - general.fmidi: MIDI cable event filter
-   - general.triglen: Trigger length in ms
-
-   - OUT.flags: Output flags
-   - OUT.divisor: Output clock divisor (96ppq units)
-   - OUT.offset: Output clock offset (96ppq units)
-   - OUT.note: Output MIDI note/control number
-
-Where OUT is one of ck, rs, fl, g1, g2, g3.
-
-Operating modes: list, create, send, receive and update
-are described below.
-
-
-### -l, --list : List Available MIDI Ports
-
-Example:
-
-	$ syncbox-edit -l
-	Available MIDI Ports:
-	 	'UM-ONE:UM-ONE MIDI 1 20:0'
-		'Syncbox:Syncbox Sync 24:0'
-
 
 ### -c, --create : Create Configuration File
 
@@ -136,6 +88,54 @@ Example: Alter output g3 divisor
 	$ ./syncbox.py -u -i g3 -e g3.divisor=6
 
 
+### -i INC : Specify sections to include
+
+Option -i specifies a comma-separated list of sections that
+should apply to the operating mode. Available options are:
+
+   - general: General configuration
+   - ck: DIN pin 3 "clock"
+   - rs: DIN pin 1 "run/stop"
+   - fl: DIN pin 5 "continue" or "fill"
+   - g1: Gate output 1
+   - g2: Gate output 2
+   - g3: Gate output 3
+   - src: include all sections present in input file (default)
+   - all: include all configuration sections
+
+### -e SET : Specify setting
+
+Option -e enables override of a specific setting using
+the form: section.key=value and may be specified multiple
+times. Section may be omitted for general
+configuration settings. Recognised settings are:
+
+   - general.tempo: Set internal tempo in bpm
+   - general.inertia: Set run/stop inertia in ms
+   - general.channel: Set MIDI basic channel, 1-16
+   - general.mode: Set MIDI mode "omni on" or "omni off"
+   - general.fusb: USB cable event filter (See "Cable Filter Flags" below)
+   - general.fmidi: MIDI cable event filter (See "Cable Filter Flags" below)
+   - general.triglen: Trigger length in ms
+
+   - OUT.flags: Output flags (See "Output Flags" below)
+   - OUT.divisor: Output clock divisor (96ppq units)
+   - OUT.offset: Output clock offset (96ppq units)
+   - OUT.note: Output MIDI note/control number
+
+Where OUT is one of ck, rs, fl, g1, g2, g3.
+
+
+### -l, --list : List Available MIDI Ports
+
+Example:
+
+	$ syncbox-edit -l
+	Available MIDI Ports:
+	 	'UM-ONE:UM-ONE MIDI 1 20:0'
+		'Syncbox:Syncbox Sync 24:0'
+
+
 ### -p, -t : Select MIDI or UART port
 
 By default, the first MIDI device will be used. To specify
@@ -163,9 +163,9 @@ Device configuration is saved as a JSON encoded object with two
 sections: 'general' and 'output'. General device configuration
 is a map containing the following keys and values:
 
-   - tempo (string): Internal clock tempo in bpm 10.0-500.0, default:
-     "120.000 bpm"
-   - inertia (string): Run/stop inertia in ms 0.0-12.7, default: "5.0 ms"
+   - tempo (string): Internal clock tempo in bpm 10 - 300, default:
+     "120 bpm"
+   - inertia (string): Run/stop inertia in ms 0 - 15.8, default: "5 ms"
    - channel (int): Basic MIDI Channel 1-16, default: 1
    - mode (string): MIDI Mode "omni on"(1) or "omni off"(3), default:
      "omni on"
@@ -176,7 +176,7 @@ is a map containing the following keys and values:
    - triglen (string): Trigger length in ms 0-127, default: "20 ms"
 
 The output section contains an output configuration object for each
-of the outputs:
+of the output channels:
 
    - ck: DIN pin 3 "clock"
    - rs: DIN pin 1 "run/stop"
@@ -193,21 +193,28 @@ Each output configuration object has the following keys and values:
    - note (int): MIDI note or controller
 
 Note: Divisor is halved before sending to syncbox, so odd values
-will be effectively truncated to even.
+will be effectively truncated to even. See "example_configuration.json"
+for default output configuration values.
 
 
-### MIDI Cable Filter Flags
+### Cable Filter Flags
+
+MIDI and USB inputs to syncbox may be independently
+filtered by specifying a bitmask of event types 
+in the general configuration.
+
+Use any combination of the following values:
 
    - "default": 0x8b2c (common, note, controller, realtime)
    - "system common": 0x2c (includes 1, 2 and 3 byte common)
-   - "misc function": 0x1
-   - "cable events": 0x2
+   - "misc function": 0x1 [*]
+   - "cable events": 0x2 [*]
    - "2 byte system common": 0x4
    - "3 byte system common": 0x8
-   - "sysex start": 0x10
+   - "sysex start": 0x10 [*]
    - "1 byte system common": 0x20
-   - "sysex ends with 2 bytes": 0x40
-   - "sysex ends with 3 bytes": 0x80
+   - "sysex ends with 2 bytes": 0x40 [*]
+   - "sysex ends with 3 bytes": 0x80 [*]
    - "note off": 0x100
    - "note on": 0x200
    - "poly pressure": 0x400
@@ -217,23 +224,23 @@ will be effectively truncated to even.
    - "bender": 0x4000
    - "realtime": 0x8000
 
-Note: Misc function, cable events and SysEx messages are not filtered
-by the syncbox, these flags and undefined bits are ignored.
+* Note: SysEx messages are always received by syncbox.
+Misc function, cable events and any undefined bits are ignored.
+
 
 ### Output Flags
 
-The behaviour of output pins is determined by a combination
-of the following flags. Where states overlap, the output
-behaviour is determined by the order of reception of
-MIDI messages.
+The behaviour of an output is determined by a combination
+of the following flags:
 
    - "clock": Output is switched on and off by the internal 96ppq
      reference according to the divisor and offset configuration
      (subject to inertia setting)
    - "runstop": Output is set on reception of a MIDI start message
-     and cleared on reception of a MIDI stop (subject to inertia
+     and cleared on reception of MIDI stop (subject to inertia
      setting)
-   - "continue": Output is set on reception of a MIDI continue message
+   - "continue": Output is triggered for triglen milliseconds
+     on reception of a MIDI continue message
    - "note": Output is set and cleared on reception of Note on/off
      messages matching the configured note value
    - "trig": Output is cleared triglen milliseconds after being set
@@ -245,6 +252,10 @@ MIDI messages.
      received with a value of 64 or greater, and cleared if the value
      is less than 64.
    - "run mask": The output is held clear while stopped
+
+Where states overlap, output behaviour depends on the order
+of reception of MIDI messages relative to the internal
+reference clock.
 
 
 ### Divisor/Offset Labels
@@ -268,8 +279,9 @@ available to set standard tempo durations:
    - "half": 192
    - "bar": 384
 
-Multiples are specified by prefixing a label with an integer
-multiplier and a space, eg: "3 16th" is equivalent to 72.
+Multiples are specified by prefixing a label with a
+multiplier and a space, eg: "3 16th" is equivalent to 72,
+and "0.75 Bar" is equivalent to "3 beat" or 288.
 
 
 ## Installation

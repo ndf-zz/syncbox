@@ -84,7 +84,7 @@ CONFIG = {
             'note': 0,
         },
         'fl': {
-            'flags': FLAG_CONTINUE | FLAG_TRIG,
+            'flags': FLAG_CONTINUE,
             'divisor': 0,
             'offset': 0,
             'note': 0,
@@ -97,13 +97,13 @@ CONFIG = {
         },
         'g2': {
             'flags': FLAG_CLOCK | FLAG_TRIG | FLAG_RUNMASK,
-            'divisor': DIVISOR_BEAT,
+            'divisor': 3 * DIVISOR_16TH,
             'offset': 0,
             'note': 0,
         },
         'g3': {
             'flags': FLAG_CLOCK | FLAG_TRIG | FLAG_RUNMASK,
-            'divisor': DIVISOR_BAR,
+            'divisor': DIVISOR_BEAT,
             'offset': 0,
             'note': 0,
         },
@@ -199,18 +199,17 @@ SYMBOLS = {
 # Option types, limits and symbol lookup
 TYPEMAP = {
     'tempo': {
-        'type': 'float',
+        'type': 'delay',
         'min': 1.0,
         'max': 500.0,
         'units': 'bpm',
-        'places': 3,
+        'places': 5,
     },
     'inertia': {
-        'type': 'float',
+        'type': 'uptime',
         'min': 0,
-        'max': 12.7,
+        'max': 127 / 8,
         'units': 'ms',
-        'places': 1,
     },
     'channel': {
         'type': 'int',
@@ -286,15 +285,15 @@ def minmax(value, cfg):
 
 def intval(value, cfg):
     """Return saturated integer value"""
-    base = 10
     if isinstance(value, str):
         if value.lower().startswith('0x'):
-            base = 16
+            value = int(value, 16)
         elif value.lower().startswith('0b'):
-            base = 2
-        value = int(value, base)
+            value = int(value, 2)
+        else:
+            value = int(round(float(value)))
     else:
-        value = int(value)
+        value = int(round(value))
     return minmax(value, cfg)
 
 
@@ -397,7 +396,7 @@ def multipleval(value, cfg):
     if isinstance(value, str):
         sv = value.split(maxsplit=1)
         if len(sv) == 2:
-            mult = choiceval(sv[0], cfg)
+            mult = float(sv[0])
             unit = choiceval(sv[1], cfg)
             return intval(mult * unit, cfg)
         else:
@@ -420,7 +419,11 @@ def valmultiple(value, cfg):
                 # gcd unit was not matched
                 return value
             else:
-                return '%d %s' % (value // unit, token)
+                count = value // unit
+                if count > 1:
+                    return '%d %s' % (value // unit, token)
+                else:
+                    return token
         else:
             return value
 
@@ -441,10 +444,11 @@ def valunits(value, cfg):
 
 
 def valfloat(value, cfg):
-    """Convert float value to string with desired places"""
+    """Convert float value to string rounded to desired places"""
     if isinstance(value, float):
         if 'places' in cfg:
-            value = '{0:0.{1}f}'.format(value, cfg['places'])
+            value = round(value, cfg['places'])
+        value = '{0:g}'.format(value)
     return value
 
 
@@ -456,6 +460,10 @@ def parseval(key, value):
     itype = cfg['type']
     if itype == 'float':
         return minmax(float(unitsval(value, cfg)), cfg)
+    elif itype == 'uptime':
+        return uptimems(msuptime(minmax(float(unitsval(value, cfg)), cfg)))
+    elif itype == 'delay':
+        return delaytempo(tempodelay(minmax(float(unitsval(value, cfg)), cfg)))
     elif itype == 'int':
         return intval(unitsval(value, cfg), cfg)
     elif itype == 'bits':
@@ -480,7 +488,7 @@ def unparseval(key, value):
         return valchoice(value, cfg)
     elif itype == 'multiple':
         return valmultiple(value, cfg)
-    elif itype == 'float':
+    elif itype in ['float', 'delay', 'uptime']:
         return valunits(valfloat(value, cfg), cfg)
     else:
         return valunits(value, cfg)
@@ -506,6 +514,26 @@ def mk_generalreq():
     return msg
 
 
+def tempodelay(bpm):
+    """Return a FMPU delay for the provided tempo"""
+    return int(round(FMPU * 60 / (96 * bpm)))
+
+
+def delaytempo(delay):
+    """Return a tempo for the provided FMPU delay"""
+    return 60 * FMPU / (96 * delay)
+
+
+def msuptime(ms):
+    """Return uptime count for the given milliseconds"""
+    return int(round(8 * ms))
+
+
+def uptimems(uptime):
+    """Return millisecond value for given uptime"""
+    return uptime / 8
+
+
 def mk_general(cfg):
     """Return a SysEx general config for the provided config object"""
     msg = bytearray(23)
@@ -513,12 +541,12 @@ def mk_general(cfg):
     pack_into('<L', msg, 1, SYSID)
     msg[5] = COMMAND_GENERAL
 
-    delay = int(round(FMPU * 60 / (96 * cfg['tempo'])))
+    delay = tempodelay(cfg['tempo'])
     msg[6] = delay & 0x7f
     msg[7] = (delay >> 7) & 0x7f
     msg[8] = (delay >> 14) & 0x7f
     msg[9] = (delay >> 21) & 0x7f
-    msg[10] = int(round(cfg['inertia'] * 10.0)) & 0x7f
+    msg[10] = msuptime(cfg['inertia']) & 0x7f
     msg[11] = (cfg['channel'] - 1) & 0x0f
     msg[12] = cfg['mode'] & 0x0f
     msg[14] = cfg['fusb'] & 0x7f
@@ -543,9 +571,8 @@ def unmk_general(cfg):
         if sysid == SYSID and crc == cfg[20] and cmd == 0x4:
             cr = {}
             delay = cfg[5] | cfg[6] << 7 | cfg[7] << 14 | cfg[8] << 21
-            bpm = 60 * FMPU / (96 * delay)
-            cr['tempo'] = bpm
-            cr['inertia'] = 0.1 * cfg[9]
+            cr['tempo'] = delaytempo(delay)
+            cr['inertia'] = uptimems(cfg[9])
             cr['channel'] = (cfg[10] & 0xf) + 1
             cr['mode'] = cfg[11] & 0xf
             cr['fusb'] = cfg[13] | cfg[14] << 7 | cfg[15] << 14
@@ -832,10 +859,6 @@ def mergeconf(src, dst, optref):
 
 def main():
     parser = argparse.ArgumentParser(prog='syncbox-edit')
-    parser.add_argument('-l',
-                        '--list',
-                        action='store_true',
-                        help='list available MIDI ports')
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-c',
                        '--create',
@@ -853,6 +876,10 @@ def main():
                        '--update',
                        action='store_true',
                        help='update configuration on device')
+    parser.add_argument('-l',
+                        '--list',
+                        action='store_true',
+                        help='list available MIDI ports')
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
         '-p',
@@ -864,7 +891,7 @@ def main():
                         dest='include',
                         default='src',
                         metavar='INC',
-                        help='limit settings eg: -i general,ck')
+                        help='specify sections to include eg: -i general,ck')
     parser.add_argument('-e',
                         dest='set',
                         help='specify setting eg: -e general.tempo=120bpm',

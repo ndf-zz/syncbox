@@ -22,6 +22,7 @@ classifiers = [
 
 dependencies = [
     "mido",
+    "pyserial",
 ]
 
 [project.urls]
