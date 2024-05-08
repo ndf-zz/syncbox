@@ -14,16 +14,22 @@ SYSID = 0x1100007d
 
 # Conditional compilation options
 
+# Define chip type for STM headers
+CPPFLAGS = -DSTM32F303xE
 # Blink note LED on reception of matching Note-Off message
 #CPPFLAGS += -DNOTE_OFF_BLINK
-# Enable sleep to low power mode
+# Enable sleep on exit from handler
 CPPFLAGS += -DENABLE_SLEEP
 # Lock code memory pages in system_init() - Requires power on reset to clear
 #CPPFLAGS += -DLOCK_CODE_MEMORY
 # Lock GPIO ports in system_init() - Requires power on reset to clear
 #CPPFLAGS += -DLOCK_GPIO
-# Enable IWDG in user interface handler
+# Enable IWDG in user interface handler [prod]
 #CPPFLAGS += -DUSE_IWDG
+# Include __BKPT instruction in build [debug]
+CPPFLAGS += -DUSE_BKPT
+# Include ITM Trace calls in build [debug]
+CPPFLAGS += -DUSE_TRACE
 
 # Build Objects
 
@@ -100,8 +106,6 @@ ARMOPTS = -mcpu=cortex-m4
 # Generate thumb code
 ARMOPTS += -mthumb
 
-# Define chip type for STM headers
-CPPFLAGS = -DSTM32F303xE
 # Add include path for headers
 CPPFLAGS += -Iinclude
 # Sysex manufacturer and device ID

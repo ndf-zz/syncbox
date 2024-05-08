@@ -6,8 +6,9 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
+// Set core frequency and 1/8 ms uptime clock
 #define SYSTEMCORECLOCK 24000000UL
-#define SYSTEMTICKLEN	(SYSTEMCORECLOCK/1000UL)
+#define SYSTEMTICKLEN	(SYSTEMCORECLOCK/8000UL)
 
 #ifndef SYSTEMVERSION
 #define SYSTEMVERSION 0xdbffffffUL
@@ -33,8 +34,8 @@
 #define wait_for_bit_set(reg, bit) do { } while (((reg)&bit) != bit)
 #define wait_for_bit_clr(reg, bit) do { } while (((reg)&bit) == bit)
 #define DEBUG_ENABLED (CoreDebug->DHCSR & CoreDebug_DHCSR_C_DEBUGEN_Msk)
-#define BREAKPOINT(cond) do { if (DEBUG_ENABLED) __BKPT( (cond) ); } while(0)
-#define TRACEVAL(port, value) do { ITM->PORT[(port)].u32 = (value); } while(0)
+#define BREAKPOINT(cond) do { if (IS_ENABLED(USE_BKPT)) if (DEBUG_ENABLED) __BKPT( (cond) ); } while(0)
+#define TRACEVAL(port, value) do { if (IS_ENABLED(USE_TRACE)) ITM->PORT[(port)].u32 = (value); } while(0)
 #define PENDSV() do { SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk; } while(0)
 #define SPIN() do { } while (1U)
 
@@ -100,8 +101,11 @@ extern uint32_t SystemID;
 // System heartbeat clock
 extern volatile uint32_t Uptime;
 
-// Busy wait for roughly delay ms
+// Busy wait roughly delay ms
 void delay_ms(uint32_t delay);
+
+// Busy wait roughly delay uptimes (~1/8ms)
+void delay_uptime(uint32_t delay);
 
 // Main function prototype - requires -ffreestanding */
 void main(void);

@@ -114,7 +114,7 @@ static void mem_init(void)
 }
 
 // Enable peripheral clocks
-static void enable_clocks(void)
+static void enable_peripherals(void)
 {
 	RCC->AHBENR |= RCC_AHBENR_CRCEN | RCC_AHBENR_GPIOAEN |
 	    RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN |
@@ -140,8 +140,11 @@ void system_init(void)
 
 	mem_init();
 	setup_clock();
-	setup_mpu();
-	enable_clocks();
+	enable_peripherals();
+	generate_sysid();
+
+	// ensure stysem id and option bytes are correctly set
+	flash_set_options();
 
 	// I/O Port configuration
 	GPIOA->MODER = 0xebfffff5;	// DA, MA, SWD, SENSE
@@ -151,10 +154,7 @@ void system_init(void)
 	GPIOD->MODER = 0xffffffef;	// MIDI
 	GPIOF->MODER = 0xffffffff;	// Unused
 
-	generate_sysid();
-
-	// ensure option bytes are correctly set
-	flash_set_options();
+	setup_mpu();
 
 	// Update interrupt priority grouping field
 	NVIC_SetPriorityGrouping(PRIGROUP_4_4);
@@ -204,18 +204,27 @@ void system_init(void)
 	SPIN();
 }
 
-// Busy wait roughly delay millisconds
-void delay_ms(uint32_t delay)
+// Busy wait roughly delay uptimes (~1/8ms)
+void delay_uptime(uint32_t delay)
 {
 	uint32_t st = Uptime;
 	while (Uptime - st < delay) ;
+}
+
+// Busy wait roughly delay millisconds
+void delay_ms(uint32_t delay)
+{
+	delay_uptime(delay << 3);
 }
 
 /* ARM SysTick Handler */
 void ms_timer(void)
 {
 	Uptime++;
-	PENDSV();
+	// Flag PENDSV every millisecond except the zero'th
+	if (!(Uptime & 0x7)) {
+		PENDSV();
+	}
 }
 
 void undefined_handler(void)
