@@ -5,6 +5,8 @@
  */
 #include "stm32f3xx.h"
 #include "flash.h"
+#include "settings.h"
+#include "usb.h"
 
 /* Record error and clear flags */
 void flash_regerr(uint32_t flags)
@@ -124,6 +126,25 @@ void flash_ob_reload(void)
 /* Check and optionally reset option bytes */
 void flash_set_options(void)
 {
+	// First pass: Check if a serial number has been written to USB cfg
+	uint16_t *serial = (uint16_t *) (&OPTION->usb.string[USB_DESCR_SERIAL]);
+	serial += 2;
+	if (*serial == 0xffff) {
+		uint32_t id = SystemID;
+		uint32_t i = 0;
+		do {
+			uint32_t d = id & 0x0f;
+			if (d > 9)
+				d += 7;
+			flash_program((uint32_t) (serial),
+				      (uint16_t) (0x30 + d));
+			serial++;
+
+			id >>= 4;
+			++i;
+		} while (i < 8);
+	}
+	// second pass: check option bytes
 	if (FLASH->OBR != 0x4446bf00UL) {
 		flash_unlock();
 		flash_ob_unlock();
