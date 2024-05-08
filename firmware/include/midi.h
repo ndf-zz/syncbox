@@ -4,7 +4,7 @@
 #ifndef MIDI_H
 #define MIDI_H
 
-#define MIDI_SENSE_TIMEOUT      400U
+#define MIDI_SENSE_TIMEOUT      (400U<<3)
 
 #define MIDI_RT_MASK            0xf8
 #define MIDI_STATUS_MASK        0xf0

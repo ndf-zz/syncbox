@@ -32,6 +32,9 @@
 #define SYSBUFLEN		64U
 #define MIDI_OVERRUN		24U
 
+// Shared SysEx packet ID counter
+static uint32_t sysexcount;
+
 static struct midi_event_buf {
 	volatile uint32_t wi;
 	volatile uint32_t ri;
@@ -46,6 +49,8 @@ struct midi_receiver {
 	uint32_t bytes;		// number of data bytes expected  (0,1,2)
 	uint32_t count;		// count of data bytes collected
 	uint32_t sense;		// recent signal flag
+	uint32_t clocked;	// clock pulse received flag
+	uint32_t lastclock;	// uptime of last received clock message
 	uint32_t sysid;		// id of sysex packet for curent buf
 	uint8_t sysbuf[MIDI_MAX_SYSEX];	// sysex packet buffer
 } rcv[2];
@@ -180,10 +185,14 @@ static void status_3_byte(const uint32_t cableno, uint32_t cin, uint32_t status)
 // Receive a status byte
 static void rcv_status(const uint32_t cableno, uint32_t sb)
 {
-	display_midi_on();
 	rcv[cableno].sense = 1U;
 	switch (sb) {
 	case MIDI_RT_CLOCK:
+		display_midi_on();
+		rcv[cableno].clocked = 1U;
+		rcv[cableno].lastclock = rcv[cableno].time;
+		single_byte_msg(cableno, MIDI_CIN_BYTE, sb);
+		break;
 	case MIDI_RT_START:
 	case MIDI_RT_CONTINUE:
 	case MIDI_RT_STOP:
@@ -205,7 +214,7 @@ static void rcv_status(const uint32_t cableno, uint32_t sb)
 	case MIDI_STATUS_SYSTEM:
 		// Special case: Sysex msg len in EOX3 packet
 		if (rcv[cableno].sysid == 0) {
-			rcv[cableno].sysid = Uptime | 0x80000000;
+			rcv[cableno].sysid = 0x80000000 | sysexcount++;
 			status_3_byte(cableno, MIDI_CIN_EOX_3,
 				      MIDI_STATUS_SYSTEM);
 		} else {
@@ -258,17 +267,26 @@ static void rcv_status(const uint32_t cableno, uint32_t sb)
 }
 
 // Test for recent reception of data on nominated cable
+// Return non-zero for a timeout of clock signals
 static uint32_t rcv_signal(const uint32_t cableno)
 {
+	// Active sense handling
 	if (rcv[cableno].sense) {
 		if ((Uptime - rcv[cableno].time + 4U) > MIDI_SENSE_TIMEOUT) {
-			// Timeout - may impact very slow sysex
+			// reset may impact very slow sysex
 			midi_reset(cableno);
 			rcv[cableno].sense = 0;
 			rcv[cableno].sysid = 0;
+		}
+	}
+	// Incoming clock status handling
+	if (rcv[cableno].clocked) {
+		if ((Uptime - rcv[cableno].lastclock + 4U) > MIDI_SENSE_TIMEOUT) {
+			rcv[cableno].clocked = 0;
 			return 1U;
 		}
 	}
+
 	return 0;
 }
 
@@ -355,7 +373,7 @@ struct midi_sysex_config *midi_sysex_buf(struct midi_event *event)
 static void crc_init(void)
 {
 	CRC->CR |= CRC_CR_RESET;
-	CRC->CR = CRC_CR_POLYSIZE_0|CRC_CR_POLYSIZE_1;
+	CRC->CR = CRC_CR_POLYSIZE_0 | CRC_CR_POLYSIZE_1;
 	CRC->POL = CRC7_POLY;
 	CRC->INIT = CRC7_INIT;
 }
