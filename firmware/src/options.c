@@ -1,187 +1,139 @@
 // SPDX-License-Identifier: MIT
 
 /*
- * ROM Options - saved into binary image
- * at address 0x08004800.
+ * ROM Options - included in binary image
+ * 
+ * available at runtime address 0x08004800 via OPTION pointer eg:
+ *
+ * #include "flash.h"
+ *
+ * something = OPTION->sysid;
  *
  */
 #include "settings.h"
 
 static __attribute__((used))
 struct option_struct rom = {
+	.sysid = SYSEX_ID,
+	.version = SYSTEMVERSION,
 	.preset = {
-		   // Preset 0: Omni on, Roland sync, fill+gates note on/off
+		   // Preset 0: Omni on, Roland sync, clock triggers
 		   {
 		    .delay = 125000U,	// ~120bpm
-		    .inertia = 0,	// Disable inertia
+		    .inertia = 40U,	// ~5.0ms inertia
 		    .channel = 0,	// MIDI channel 1
 		    .mode = SETTING_OMNION,	// Omni on
 		    .master = SETTING_AUTO,	// Clock Master: Auto
 		    .fusb = SETTING_DEFFILT,	// Note/Control/RT
 		    .fmidi = SETTING_DEFFILT,	// Note/Control/RT
-		    .triglen = 8U,	// 8ms Trigger Length
+		    .triglen = 20U,	// 20ms Trigger Length
 		    .output = {
 			       // CK Ouput
 			       {
-				.source = SETTING_CLOCK,
+				.flags = SETTING_CLOCK,
 				.divisor = SETTING_24PPQ,
 				.offset = 0,
-				.note = SETTING_INVALID,
+				.note = 0,
 				},
 			       // RN Output
 			       {
-				.source = SETTING_RUNSTOP,
+				.flags = SETTING_RUNSTOP,
 				.divisor = 0,
 				.offset = 0,
-				.note = SETTING_INVALID,
+				.note = 0,
 				},
 			       // FL Output
 			       {
-				.source = SETTING_NOTE,
+				.flags = SETTING_CONTINUE | SETTING_TRIG,
 				.divisor = 0,
 				.offset = 0,
-				.note = 60U,	// C3
+				.note = 0,
 				},
 			       // G1 Output
 			       {
-				.source = SETTING_NOTE,
-				.divisor = 0,
-				.offset = 0,
-				.note = 62U,	// D3
-				},
-			       // G2 Output
-			       {
-				.source = SETTING_NOTE,
-				.divisor = 0,
-				.offset = 0,
-				.note = 64U,	// E3
-				},
-			       // G3 Output
-			       {
-				.source = SETTING_NOTE,
-				.divisor = 0,
-				.offset = 0,
-				.note = 65U,	// F3
-				},
-			       },
-		    },
-		   // Preset 1: Omni off, internal clock, channel 1, notes only
-		   {
-		    .delay = 125000U,	// ~120bpm
-		    .inertia = 0,	// Disable inertia
-		    .channel = 0,	// MIDI channel 1
-		    .mode = SETTING_OMNIOFF,	// Omni off
-		    .master = 0x0f,	// Clock Master: Disabled
-		    .fusb = SETTING_DEFFILT,	// Note, Control, RT
-		    .fmidi = SETTING_DEFFILT,	// Note, Control, RT
-		    .triglen = 0,	// Minimum trigger length
-		    .output = {
-			       // CK Ouput
-			       {
-				.source = SETTING_NOTE,
-				.divisor = 0,
-				.offset = 0,
-				.note = 58U,
-				},
-			       // RN Output
-			       {
-				.source = SETTING_NOTE,
-				.divisor = 0,
-				.offset = 0,
-				.note = 59U,
-				},
-			       // FL Output
-			       {
-				.source = SETTING_NOTE,
-				.divisor = 0,
-				.offset = 0,
-				.note = 60U,	// C3
-				},
-			       // G1 Output
-			       {
-				.source = SETTING_NOTE,
-				.divisor = 0,
-				.offset = 0,
-				.note = 62U,	// D3
-				},
-			       // G2 Output
-			       {
-				.source = SETTING_NOTE,
-				.divisor = 0,
-				.offset = 0,
-				.note = 64U,	// E3
-				},
-			       // G3 Output
-			       {
-				.source = SETTING_NOTE,
-				.divisor = 0,
-				.offset = 0,
-				.note = 65U,	// E3
-				},
-			       },
-		    },
-		   // Preset 2: Clock Testing
-		   {
-		    .delay = 125000U,	// ~120bpm
-		    .inertia = 0,	// Disable inertia
-		    .channel = 0,	// MIDI channel 1
-		    .mode = SETTING_OMNIOFF,	// Omni off
-		    .master = 0x00,	// Clock Master: Disabled
-		    .fusb = SETTING_DEFFILT,	// Note, Control, RT
-		    .fmidi = SETTING_DEFFILT,	// Note, Control, RT
-		    .triglen = 5,	// Minimum trigger length
-		    .output = {
-			       // CK Ouput - to match midi clock
-			       {
-				.source = SETTING_CLOCK,
-				.divisor = SETTING_24PPQ,
-				.offset = 0,
-				.note = SETTING_INVALID,
-				},
-			       // RN Output - overlayed with F8 measures
-			       {
-				.source = SETTING_RUNSTOP | SETTING_TRIG,
-				.divisor = 0,
-				.offset = 0,
-				.note = SETTING_INVALID,
-				},
-			       // FL Output 48 ppq test signal
-			       {
-				.source = SETTING_CLOCK,
-				.divisor = SETTING_48PPQ,
-				.offset = 0,
-				.note = SETTING_INVALID,
-				},
-			       // G1 Output 16ths
-			       {
-				.source = SETTING_CLOCK | SETTING_TRIG,
+				.flags =
+				SETTING_CLOCK | SETTING_TRIG | SETTING_RUNMASK,
 				.divisor = SETTING_16TH,
 				.offset = 0,
-				.note = SETTING_INVALID,
+				.note = 0,
 				},
-			       // G2 Output 8ths
+			       // G2 Output
 			       {
-				.source = SETTING_CLOCK | SETTING_TRIG,
-				.divisor = SETTING_8TH,
+				.flags =
+				SETTING_CLOCK | SETTING_TRIG | SETTING_RUNMASK,
+				.divisor = SETTING_BEAT,
 				.offset = 0,
-				.note = SETTING_INVALID,
+				.note = 0,
 				},
-			       // G3 Output Bar
+			       // G3 Output
 			       {
-				.source = SETTING_CLOCK | SETTING_TRIG,
+				.flags =
+				SETTING_CLOCK | SETTING_TRIG | SETTING_RUNMASK,
 				.divisor = SETTING_BAR,
 				.offset = 0,
-				.note = SETTING_INVALID,
+				.note = 0,
 				},
 			       },
 		    },
-		   // Terminal Preset - Outputs disabled
+		   // Preset 1: Omni off, Roland sync, clock triggers
 		   {
-		    .delay = 125000U,
+		    .delay = 125000U,	// ~120bpm
+		    .inertia = 40U,	// ~5.0ms inertia
+		    .channel = 0,	// MIDI channel 1
+		    .mode = SETTING_OMNIOFF,	// Omni off
+		    .master = SETTING_AUTO,	// Clock Master: Auto
+		    .fusb = SETTING_DEFFILT,	// Note/Control/RT
+		    .fmidi = SETTING_DEFFILT,	// Note/Control/RT
+		    .triglen = 20U,	// 20ms Trigger Length
+		    .output = {
+			       // CK Ouput
+			       {
+				.flags = SETTING_CLOCK,
+				.divisor = SETTING_24PPQ,
+				.offset = 0,
+				.note = 0,
+				},
+			       // RN Output
+			       {
+				.flags = SETTING_RUNSTOP,
+				.divisor = 0,
+				.offset = 0,
+				.note = 0,
+				},
+			       // FL Output
+			       {
+				.flags = SETTING_CONTINUE | SETTING_TRIG,
+				.divisor = 0,
+				.offset = 0,
+				.note = 0,
+				},
+			       // G1 Output
+			       {
+				.flags =
+				SETTING_CLOCK | SETTING_TRIG | SETTING_RUNMASK,
+				.divisor = SETTING_16TH,
+				.offset = 0,
+				.note = 0,
+				},
+			       // G2 Output
+			       {
+				.flags =
+				SETTING_CLOCK | SETTING_TRIG | SETTING_RUNMASK,
+				.divisor = SETTING_BEAT,
+				.offset = 0,
+				.note = 0,
+				},
+			       // G3 Output
+			       {
+				.flags =
+				SETTING_CLOCK | SETTING_TRIG | SETTING_RUNMASK,
+				.divisor = SETTING_BAR,
+				.offset = 0,
+				.note = 0,
+				},
+			       },
 		    },
 		    },
-	.sysid = SYSEX_ID,
-	.version = SYSTEMVERSION,
 	.usb = {
 
 		// Device Descriptor
@@ -219,7 +171,7 @@ struct option_struct rom = {
 				  .csci_bDescriptorType = USB_CS_INTERFACE,
 				  .csci_bDescriptorSubType = USB_HEADER,
 				  .csci_bcdADC = 0x0100,
-				  .csci_wTotalLength = 9U, // Header only
+				  .csci_wTotalLength = 9U,	// Header only
 				  .csci_bInCollection = 1U,
 				  .csci_baInterfaceNr1 = 1U,
 
@@ -334,8 +286,7 @@ struct option_struct rom = {
 			   {
 			    .wString =
 			    { 0x50, 0x2d, 0xffff, 0xffff, 0xffff, 0xffff,
-			     0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0x2d,
-			     0x31},
+			     0xffff, 0xffff, 0xffff, 0xffff, 0x2d, 0x31},
 			    .length = 12U,
 			    },
 			   // Usb Cable

@@ -11,19 +11,16 @@
 #include "settings.h"
 #include "flash.h"
 
-// Global ROM options
-struct option_struct *option;
-
 // Global config
 struct general_config config;
 
 // Load preset from ROM
 void settings_preset(uint32_t preset)
 {
-	uint32_t *src = (uint32_t *)&option->preset[preset];
-	uint32_t *dst = (uint32_t *)&config;
+	uint32_t *src = (uint32_t *) & OPTION->preset[preset];
+	uint32_t *dst = (uint32_t *) & config;
 	uint32_t cnt = 0;
-	uint32_t len = sizeof(struct general_config)>>2;
+	uint32_t len = sizeof(struct general_config) >> 2;
 	while (cnt < len) {
 		*dst++ = *src++;
 		cnt++;
@@ -52,7 +49,5 @@ void settings_save(void)
 // Prepare settings interface and read from flash
 void settings_init(void)
 {
-	option = OPTION;
-	TRACEVAL(2, option->sysid);
-	settings_preset(2);
+	settings_preset(0);
 }

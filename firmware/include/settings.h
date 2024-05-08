@@ -37,45 +37,45 @@
 #define SETTING_TRIG		(1U<<4)	// Set output's duration to triglen
 #define SETTING_CTRLDIV		(1U<<5)	// Use controller for divisor
 #define SETTING_CTRLOFT		(1U<<6)	// Use controller for phase offset
+#define SETTING_CTRL		(1U<<7)	// Use controller as switch
+#define SETTING_RUNMASK		(1U<<8)	// Only output clock when running
+#define SETTING_INVERT		(1U<<9)	// Invert polarity [tba]
 #define SETTING_OMNION		1U	// Omni enabled, Poly On
 #define SETTING_OMNIOFF		3U	// Omni disabled, Poly On
 #define SETTING_INVALID		0x100	// Non-matching note/ctrl
-#define SETTING_DEFFILT		((1U<<MIDI_CIN_NOTE_OFF)| \
-				(1U<<MIDI_CIN_NOTE_ON)| \
-				(1U<<MIDI_CIN_CONTROL)| \
-				(1U<<MIDI_CIN_BYTE))
+#define SETTING_DEFFILT		0x8b2c	// Common, Note, Ctrl & RT
 
 // Journal setting keys
 enum setting_key {
 	SETTING_DELAY,		// 96ppq period in HCLKs
-	SETTING_INERTIA,	// PLL slew rate (0=disable, 127=sloth)
+	SETTING_INERTIA,	// run-stop-run and pre-roll delay in 0.1ms
 	SETTING_CHANNEL,	// MIDI Channel for voice/ctrl messages
 	SETTING_MODE,		// MIDI Mode (Omni on/off)
 	SETTING_MASTER,		// Master clock selection
 	SETTING_FUSB,		// USB Cable event filter
 	SETTING_FMIDI,		// MIDI Cable event filter
 	SETTING_TRIGLEN,	// Trigger output length in ms
-	SETTING_CKSOURCE,	// CK source
+	SETTING_CKFLAGS,	// CK flags
 	SETTING_CKDIV,		// CK divisor
 	SETTING_CKOFT,		// CK offset
 	SETTING_CKNOTE,		// CK note
-	SETTING_RNSOURCE,	// RN source
+	SETTING_RNFLAGS,	// RN flags
 	SETTING_RNDIV,		// RN divisor
 	SETTING_RNOFT,		// RN offset
 	SETTING_RNNOTE,		// RN note
-	SETTING_FLSOURCE,	// FL source
+	SETTING_FLFLAGS,	// FL flags
 	SETTING_FLDIV,		// FL divisor
 	SETTING_FLOFT,		// FL offset
 	SETTING_FLNOTE,		// FL note
-	SETTING_G1SOURCE,	// G1 source
+	SETTING_G1FLAGS,	// G1 flags
 	SETTING_G1DIV,		// G1 divisor
 	SETTING_G1OFT,		// G1 offset
 	SETTING_G1NOTE,		// G1 note
-	SETTING_G2SOURCE,	// G2 source
+	SETTING_G2FLAGS,	// G2 flags
 	SETTING_G2DIV,		// G2 divisor
 	SETTING_G2OFT,		// G2 offset
 	SETTING_G2NOTE,		// G2 note
-	SETTING_G3SOURCE,	// G3 source
+	SETTING_G3FLAGS,	// G3 flags
 	SETTING_G3DIV,		// G3 divisor
 	SETTING_G3OFT,		// G3 offset
 	SETTING_G3NOTE,		// G3 note
@@ -83,7 +83,7 @@ enum setting_key {
 
 // Output Configuration
 struct output_config {
-	uint32_t source;
+	uint32_t flags;
 	uint32_t divisor;
 	uint32_t offset;
 	uint32_t note;
